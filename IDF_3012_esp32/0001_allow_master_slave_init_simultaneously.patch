@@ -1,0 +1,54 @@
+From 24425c9752ff3ba8c4d8ab728f9de68065adc0bc Mon Sep 17 00:00:00 2001
+From: alex <alex@ef.com>
+Date: Tue, 30 Mar 2021 14:42:44 +0200
+Subject: [PATCH] freemodbus: fix issues when modbus master and slave work
+ simultaneously
+
+---
+ components/freemodbus/modbus/mb.c                               | 2 +-
+ components/freemodbus/port/porttimer_m.c                        | 2 +-
+ .../serial_slave/modbus_controller/mbc_serial_slave.c           | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/components/freemodbus/modbus/mb.c b/components/freemodbus/modbus/mb.c
+index be00e55c646..25722011a99 100644
+--- a/components/freemodbus/modbus/mb.c
++++ b/components/freemodbus/modbus/mb.c
+@@ -54,7 +54,7 @@
+ #endif
+ 
+ #ifndef MB_PORT_HAS_CLOSE
+-#define MB_PORT_HAS_CLOSE 0
++#define MB_PORT_HAS_CLOSE 1
+ #endif
+ 
+ /* ----------------------- Static variables ---------------------------------*/
+diff --git a/components/freemodbus/port/porttimer_m.c b/components/freemodbus/port/porttimer_m.c
+index 9d70336327d..b1f83d00b1b 100644
+--- a/components/freemodbus/port/porttimer_m.c
++++ b/components/freemodbus/port/porttimer_m.c
+@@ -57,7 +57,7 @@
+ /* ----------------------- Variables ----------------------------------------*/
+ static USHORT usT35TimeOut50us;
+ 
+-static const USHORT usTimerIndex = MB_TIMER_INDEX;      // Initialize Modbus Timer index used by stack,
++static const USHORT usTimerIndex = MB_TIMER_INDEX ^ 1;      // Initialize Modbus Timer index used by stack,
+ static const USHORT usTimerGroupIndex = MB_TIMER_GROUP; // Timer group index used by stack
+ static timer_isr_handle_t xTimerIntHandle;              // Timer interrupt handle
+ 
+diff --git a/components/freemodbus/serial_slave/modbus_controller/mbc_serial_slave.c b/components/freemodbus/serial_slave/modbus_controller/mbc_serial_slave.c
+index 4e6db38f546..dd20c88b133 100644
+--- a/components/freemodbus/serial_slave/modbus_controller/mbc_serial_slave.c
++++ b/components/freemodbus/serial_slave/modbus_controller/mbc_serial_slave.c
+@@ -173,7 +173,7 @@ static esp_err_t mbc_serial_slave_destroy(void)
+     mb_error = eMBClose();
+     MB_SLAVE_CHECK((mb_error == MB_ENOERR), ESP_ERR_INVALID_STATE,
+             "mb stack close failure returned (0x%x).", (uint32_t)mb_error);
+-
++    mbs_interface_ptr = NULL;
+     vMBPortSetMode((UCHAR)MB_PORT_INACTIVE);
+     return ESP_OK;
+ }
+-- 
+GitLab
+
