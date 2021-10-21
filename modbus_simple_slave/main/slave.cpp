@@ -74,19 +74,23 @@ void app_main(void)
     SLAVE_CHECK((err == ESP_OK), ; ,
                     "mb serial set mode failure, uart_set_mode() returned (0x%x).", (uint32_t)err);
     
-    
     // The register areas defined to store registers data
     uint16_t hold_array[6] = { 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666 };
     uint16_t input_array[6] = { 0xAAAA, 0x9999, 0x8888, 0x7777, 0x6666, 0x5555 };
+    uint16_t coil_array[6] = { 0xAAAA, 0xFFFF, 0xAAAA, 0xFFFF, 0xAAAA, 0xFFFF };
     size_t reg_size = (sizeof(hold_array) / sizeof(hold_array[0]));
     
-    // Add registers below into register bank
-    pModbusSlave->addRegisterBank(40003, &hold_array[0], reg_size);
-    pModbusSlave->addRegisterBank(30005, &input_array[0], reg_size);
+    // Add registers below into assiciated register bank (use PLC based address)
+    // These registers accessed inside this defined area only (exception returned outside of this range).
+    // Make sure the Master reads/writes to these areas!!!
+    pModbusSlave->addRegisterBank(40001, &hold_array[0], reg_size);
+    pModbusSlave->addRegisterBank(30001, &input_array[0], reg_size);
+    pModbusSlave->addRegisterBank(1, &coil_array[0], (reg_size * 2 * 8));
 
     for (int i = 0; i < MB_RETRIES; i++) {
         ESP_LOG_BUFFER_HEX_LEVEL("Holding Register bank", hold_array, sizeof(hold_array), ESP_LOG_INFO);
         ESP_LOG_BUFFER_HEX_LEVEL("Input Register bank", input_array, sizeof(input_array), ESP_LOG_INFO);
+        ESP_LOG_BUFFER_HEX_LEVEL("Coil Register bank", input_array, sizeof(coil_array), ESP_LOG_INFO);
         
         // Wait for update events when access from Modbus Master is completed (register areas accessed in wr/rd commands)
         mb_event_group_t event = pModbusSlave->run(MB_READ_WRITE_MASK);
@@ -98,7 +102,7 @@ void app_main(void)
         mb_param_info_t info = pModbusSlave->getRegisterInfo();
         
         // Check if the selected holding register area is accessed by Master
-        if (pModbusSlave->isBankAccessed(40003, reg_size)) {    
+        if (pModbusSlave->isBankAccessed(40001, reg_size)) {    
             ESP_LOGI(SLAVE_TAG, "Holding bank address offset: %d, size %d is accessed.", info.mb_offset, info.size);
             portENTER_CRITICAL(&param_lock);
             // Reinitialize the accessed register values with random numbers
@@ -107,7 +111,7 @@ void app_main(void)
         }
         
         // Check if the selected input register area is accessed by Master
-        if (pModbusSlave->isBankAccessed(30005, reg_size)) {
+        if (pModbusSlave->isBankAccessed(30001, reg_size)) {
             ESP_LOGI(SLAVE_TAG, "Input bank address offset: %d, size %d is accessed.", info.mb_offset, info.size);
             portENTER_CRITICAL(&param_lock);
             // Reinitialize the accessed register values with random numbers
@@ -115,6 +119,14 @@ void app_main(void)
             portEXIT_CRITICAL(&param_lock);
         }
         
+        if (pModbusSlave->isBankAccessed(1, 8)) {
+            ESP_LOGI(SLAVE_TAG, "Cols address offset: %d, size %d is accessed.", info.mb_offset, info.size);
+            portENTER_CRITICAL(&param_lock);
+            // Reinitialize the accessed register values with random numbers
+            esp_fill_random(info.address, (info.size >> 3));
+            portEXIT_CRITICAL(&param_lock);
+        }
+        vTaskDelay(1);
     }
     ESP_LOGI("MODBUS", "Modbus Test completed.");
     delete pModbusSlave;

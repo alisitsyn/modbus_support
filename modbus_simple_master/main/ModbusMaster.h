@@ -1,6 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /**
 @file
-Arduino library for communicating with Modbus slaves over RS232/485 (via RTU protocol).
+Wrapper class for ESP_Modbus API to access Modbus slaves over RS232/485 (via RTU protocol).
 
 @defgroup setup ModbusMaster Object Instantiation/Initialization
 @defgroup buffer ModbusMaster Buffer Management
@@ -8,30 +14,7 @@ Arduino library for communicating with Modbus slaves over RS232/485 (via RTU pro
 @defgroup register Modbus Function Codes for Holding/Input Registers
 @defgroup constant Modbus Function Codes, Exception Codes
 */
-/*
 
-  ModbusMaster.h - Arduino library for communicating with Modbus slaves
-  over RS232/485 (via RTU protocol).
-
-  Library:: ModbusMaster
-
-  Copyright:: 2009-2016 Doc Walker
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-*/
-
-  
 #ifndef ModbusMaster_h
 #define ModbusMaster_h
 
@@ -40,7 +23,16 @@ Arduino library for communicating with Modbus slaves over RS232/485 (via RTU pro
         ESP_LOGE(TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
         return ret_val; \
     }
-
+    
+// Defines for register areas
+#define MODBUS_COIL_START 1
+#define MODBUS_COIL_END 10000
+#define MODBUS_DISC_INPUT_START MODBUS_COIL_START + MODBUS_COIL_END
+#define MODBUS_DISC_INPUT_END 20000
+#define MODBUS_INPUT_START 30001
+#define MODBUS_INPUT_END 39999
+#define MODBUS_HOLD_START 40001
+#define MODBUS_HOLD_END 49999
 
 /**
 @def __MODBUSMASTER_DEBUG__ (0)
@@ -68,7 +60,8 @@ class ModbusMaster
 {
   public:
     ModbusMaster();
-   
+    ~ModbusMaster();
+    
     esp_err_t begin(uint8_t, mb_communication_info_t*);
 
     esp_err_t  readCoils(uint16_t, uint16_t, void*);
@@ -84,7 +77,7 @@ class ModbusMaster
     //esp_err_t  maskWriteRegister(uint16_t, uint16_t, uint16_t);
     esp_err_t  readWriteMultipleRegisters(uint16_t, uint16_t, uint16_t, uint16_t);
     esp_err_t  readWriteMultipleRegisters(uint16_t, uint16_t);
-    
+
   private:
     uint8_t _u8MBSlave;                                         ///< Modbus slave (1..255) initialized in begin()
     mb_communication_info_t _comm_opts;                         ///< Modbus communication options
@@ -106,8 +99,7 @@ class ModbusMaster
     
     // Modbus timeout [milliseconds]
     static const uint16_t ku16MBResponseTimeout          = 2000; ///< Modbus timeout [milliseconds]
-
-    esp_err_t ModbusMasterTransaction(uint8_t);
+    void getRegType(uint16_t, mb_param_type_t*, uint16_t*);
 };
 #endif
 

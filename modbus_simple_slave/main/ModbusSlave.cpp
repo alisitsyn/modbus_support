@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /**
 @file
 The wrapper for ESP_Modbus library communicating with Modbus slaves over RS232/485 (via RTU protocol).
@@ -114,11 +120,13 @@ bool ModbusSlave::isBankAccessed(uint16_t regAddress, uint16_t regAreaSize)
     mb_event_group_t reg_mask = getRegEventMask(reg_type);
     
     uint16_t offset = regAddress - base_off;
-    //ESP_LOGI("TEST", "Bank accessed type %d, offset %d, par_info.mb_off %d, par_info.size %d, reg_mask %d, par_info.type %d", reg_type, offset, par_info.mb_offset, par_info.size, reg_mask, par_info.type);
+    
+    //ESP_LOGI("TEST", "test mask %d", (reg_mask & par_info.type));
     bool result = ((reg_mask & par_info.type) && 
                     (offset >= par_info.mb_offset) && 
-                    ((offset + regAreaSize) <= (par_info.mb_offset + par_info.size))) ? true : false;
-    
+                    ((offset + regAreaSize) >= (par_info.mb_offset + par_info.size))) ? true : false;
+    //ESP_LOGI("TEST", "Bank accessed type %d, offset %d, par_info.mb_off %d, par_info.size %d, reg_mask %d, par_info.type %d, result=%d", 
+                        reg_type, offset, par_info.mb_offset, par_info.size, reg_mask, par_info.type, (uint8_t)result);
     return result;
 }
 
