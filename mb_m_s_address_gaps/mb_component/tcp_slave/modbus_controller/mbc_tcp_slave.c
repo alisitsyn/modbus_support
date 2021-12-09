@@ -1,17 +1,8 @@
-/* Copyright 2018 Espressif Systems (Shanghai) PTE LTD
+/*
+ * SPDX-FileCopyrightText: 2016-2021 Espressif Systems (Shanghai) CO LTD
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 // mbc_tcp_slave.c
 // Implementation of the Modbus controller TCP slave
@@ -27,6 +18,8 @@
 #include "mbc_slave.h"              // for private slave interface types
 #include "mbc_tcp_slave.h"          // for tcp slave mb controller defines
 #include "port_tcp_slave.h"         // for tcp slave port defines
+
+#if MB_TCP_ENABLED
 
 // Shared pointer to interface structure
 static mb_slave_interface_t* mbs_interface_ptr = NULL;
@@ -185,12 +178,13 @@ esp_err_t mbc_tcp_slave_create(void** handler)
     MB_SLAVE_CHECK((mbs_opts->mbs_notification_queue_handle != NULL),
             ESP_ERR_NO_MEM, "mb notify queue creation error.");
     // Create Modbus controller task
-    status = xTaskCreate((void*)&modbus_tcp_slave_task,
+    status = xTaskCreatePinnedToCore((void*)&modbus_tcp_slave_task,
                             "modbus_tcp_slave_task",
                             MB_CONTROLLER_STACK_SIZE,
                             NULL,
                             MB_CONTROLLER_PRIORITY,
-                            &mbs_opts->mbs_task_handle);
+                            &mbs_opts->mbs_task_handle,
+                            MB_PORT_TASK_AFFINITY);
     if (status != pdPASS) {
         vTaskDelete(mbs_opts->mbs_task_handle);
         MB_SLAVE_CHECK((status == pdPASS), ESP_ERR_NO_MEM,
@@ -220,3 +214,5 @@ esp_err_t mbc_tcp_slave_create(void** handler)
 
     return ESP_OK;
 }
+
+#endif //#if MB_TCP_ENABLED

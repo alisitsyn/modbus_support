@@ -1,16 +1,7 @@
-/* Copyright 2018 Espressif Systems (Shanghai) PTE LTD
+/*
+ * SPDX-FileCopyrightText: 2016-2021 Espressif Systems (Shanghai) CO LTD
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef _ESP_MB_MASTER_INTERFACE_H
@@ -232,7 +223,7 @@ esp_err_t mbc_master_get_cid_info(uint16_t cid, const mb_parameter_descriptor_t*
  * @return
  *     - esp_err_t ESP_OK - request was successful and value buffer contains
  *                          representation of actual parameter data from slave
- *     - esp_err_t ESP_ERR_INVALID_ARG - invalid argument of function
+ *     - esp_err_t ESP_ERR_INVALID_ARG - invalid argument of function or parameter descriptor
  *     - esp_err_t ESP_ERR_INVALID_RESPONSE - an invalid response from slave
  *     - esp_err_t ESP_ERR_INVALID_STATE - invalid state during data processing or allocation failure
  *     - esp_err_t ESP_ERR_TIMEOUT - operation timed out and no response from slave
@@ -253,7 +244,7 @@ esp_err_t mbc_master_get_parameter(uint16_t cid, char* name, uint8_t* value, uin
  *
  * @return
  *     - esp_err_t ESP_OK - request was successful and value was saved in the slave device registers
- *     - esp_err_t ESP_ERR_INVALID_ARG - invalid argument of function
+ *     - esp_err_t ESP_ERR_INVALID_ARG - invalid argument of function or parameter descriptor
  *     - esp_err_t ESP_ERR_INVALID_RESPONSE - an invalid response from slave during processing of parameter
  *     - esp_err_t ESP_ERR_INVALID_STATE - invalid state during data processing or allocation failure
  *     - esp_err_t ESP_ERR_TIMEOUT - operation timed out and no response from slave

@@ -1,17 +1,10 @@
-/* Copyright 2018 Espressif Systems (Shanghai) PTE LTD
+/*
+ * SPDX-FileCopyrightText: 2006 Christian Walter
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * SPDX-License-Identifier: LGPL-2.0-only
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+ * SPDX-FileContributor: 2016-2021 Espressif Systems (Shanghai) CO LTD
+ */
 /*
   * FreeModbus Libary: ESP32 TCP Port
   * Copyright (C) 2006 Christian Walter <wolti@sil.at>
@@ -38,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "esp_err.h"
+#include "esp_timer.h"
 #include "sys/time.h"
 #include "esp_netif.h"
 
@@ -54,6 +48,8 @@
 #include "mbframe.h"
 #include "port_tcp_slave.h"
 #include "esp_modbus_common.h"      // for common types for network options
+
+#if MB_TCP_ENABLED
 
 /* ----------------------- Defines  -----------------------------------------*/
 #define MB_TCP_DISCONNECT_TIMEOUT       ( CONFIG_FMB_TCP_CONNECTION_TOUT_SEC * 1000000 ) // disconnect timeout in uS
@@ -728,3 +724,5 @@ xMBTCPPortSendResponse( UCHAR * pucMBTCPFrame, USHORT usTCPLength )
     }
     return bFrameSent;
 }
+
+#endif //#if MB_TCP_ENABLED

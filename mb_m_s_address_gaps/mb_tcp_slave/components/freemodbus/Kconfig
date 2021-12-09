@@ -107,11 +107,34 @@ menu "Modbus configuration"
 
     config FMB_PORT_TASK_PRIO
         int "Modbus port task priority"
-        range 3 10
+        range 3 23
         default 10
         help
                 Modbus port data processing task priority.
                 The priority of Modbus controller task is equal to (CONFIG_FMB_PORT_TASK_PRIO - 1).
+
+    choice FMB_PORT_TASK_AFFINITY
+        prompt "Modbus task affinity"
+        default FMB_PORT_TASK_AFFINITY_CPU0
+        depends on !FREERTOS_UNICORE
+        help
+            Allows setting the core affinity of the Modbus controller task, i.e. whether the task is pinned to
+            particular CPU, or allowed to run on any CPU.
+
+        config FMB_PORT_TASK_AFFINITY_NO_AFFINITY
+            bool "No affinity"
+        config FMB_PORT_TASK_AFFINITY_CPU0
+            bool "CPU0"
+        config FMB_PORT_TASK_AFFINITY_CPU1
+            bool "CPU1"
+
+    endchoice
+
+    config FMB_PORT_TASK_AFFINITY
+        hex
+        default FREERTOS_NO_AFFINITY if FMB_PORT_TASK_AFFINITY_NO_AFFINITY || FREERTOS_UNICORE
+        default 0x0 if FMB_PORT_TASK_AFFINITY_CPU0
+        default 0x1 if FMB_PORT_TASK_AFFINITY_CPU1
 
     config FMB_CONTROLLER_SLAVE_ID_SUPPORT
         bool "Modbus controller slave ID support"
@@ -164,35 +187,20 @@ menu "Modbus configuration"
                 Modbus stack event processing time.
 
     config FMB_TIMER_PORT_ENABLED
-        bool "Modbus slave stack use timer for 3.5T symbol time measurement"
-        default y
+        bool "Modbus stack use timer for 3.5T symbol time measurement"
+        default n
         help
                 If this option is set the Modbus stack uses timer for T3.5 time measurement.
                 Else the internal UART TOUT timeout is used for 3.5T symbol time measurement.
 
-    config FMB_TIMER_GROUP
-        int "Modbus Timer group number"
-        range 0 1
-        default 0
-        help
-                Modbus Timer group number that is used for timeout measurement.
-
-    config FMB_TIMER_INDEX
-        int "Modbus Timer index in the group"
-        range 0 1
-        default 0
-        help
-                Modbus Timer Index in the group that is used for timeout measurement.
-
-    config FMB_TIMER_ISR_IN_IRAM
-        bool "Place timer interrupt handler into IRAM"
+    config FMB_TIMER_USE_ISR_DISPATCH_METHOD
+        bool "Modbus timer uses ISR dispatch method"
         default n
+        select ESP_TIMER_SUPPORTS_ISR_DISPATCH_METHOD
         select UART_ISR_IN_IRAM
         help
-                This option places Modbus timer IRQ handler into IRAM.
-                This allows to avoid delays related to processing of non-IRAM-safe interrupts
-                during a flash write operation (NVS updating a value, or some other
-                flash API which has to perform an read/write operation and disable CPU cache).
+                If this option is set the Modbus stack uses ISR dispatch method
+                to send timeout events from the callback function called from ISR.
                 This option has dependency with the UART_ISR_IN_IRAM option which places UART interrupt
                 handler into IRAM to prevent delays related to processing of UART events.
 

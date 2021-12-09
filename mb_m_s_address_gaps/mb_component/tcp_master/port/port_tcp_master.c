@@ -1,17 +1,10 @@
-/* Copyright 2018 Espressif Systems (Shanghai) PTE LTD
+/*
+ * SPDX-FileCopyrightText: 2006 Christian Walter
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * SPDX-License-Identifier: LGPL-2.0-only
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+ * SPDX-FileContributor: 2016-2021 Espressif Systems (Shanghai) CO LTD
+ */
 /*
   * FreeModbus Libary: ESP32 TCP Port
   * Copyright (C) 2006 Christian Walter <wolti@sil.at>
@@ -38,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "esp_err.h"
+#include "esp_timer.h"
 
 /* ----------------------- lwIP includes ------------------------------------*/
 #include "lwip/err.h"
@@ -52,6 +46,8 @@
 #include "mbframe.h"
 #include "port_tcp_master.h"
 
+#if MB_MASTER_TCP_ENABLED
+
 /* ----------------------- Defines  -----------------------------------------*/
 #define MB_TCP_CONNECTION_TIMEOUT_MS    ( 20 )      // Connection timeout in mS
 #define MB_TCP_RECONNECT_TIMEOUT        ( 5000000 ) // Connection timeout in uS
@@ -64,7 +60,7 @@
 
 #define MB_EVENT_REQ_ERR_MASK           ( EV_MASTER_PROCESS_SUCCESS )
 
-#define MB_EVENT_WAIT_TOUT_MS           ( 2000 )
+#define MB_EVENT_WAIT_TOUT_MS           ( 3000 )
 
 #define MB_TCP_READ_TICK_MS             ( 1 )
 #define MB_TCP_READ_BUF_RETRY_CNT       ( 4 )
@@ -76,6 +72,7 @@ void vMBPortEventClose( void );
 /* ----------------------- Static variables ---------------------------------*/
 static MbPortConfig_t xMbPortConfig;
 static EventGroupHandle_t xMasterEventHandle = NULL;
+static SemaphoreHandle_t xShutdownSemaphore = NULL;
 static EventBits_t xMasterEvent = 0;
 
 /* ----------------------- Static functions ---------------------------------*/
@@ -84,7 +81,7 @@ static void vMBTCPPortMasterTask(void *pvParameters);
 /* ----------------------- Begin implementation -----------------------------*/
 
 // Waits for stack start event to start Modbus event processing
-BOOL xMBTCPPortMasterWaitEvent(EventGroupHandle_t xEventHandle, EventBits_t xEvent)
+BOOL xMBTCPPortMasterWaitEvent(EventGroupHandle_t xEventHandle, EventBits_t xEvent, USHORT usTimeout)
 {
     xMasterEventHandle = xEventHandle;
     xMasterEvent = xEvent;
@@ -92,7 +89,7 @@ BOOL xMBTCPPortMasterWaitEvent(EventGroupHandle_t xEventHandle, EventBits_t xEve
                                                (BaseType_t)(xEvent),
                                                pdFALSE, // do not clear start bit
                                                pdFALSE,
-                                               portMAX_DELAY);
+                                               usTimeout);
     return (BOOL)(status & xEvent);
 }
 
@@ -123,12 +120,13 @@ xMBMasterTCPPortInit( USHORT usTCPPort )
     }
 
     // Create task for packet processing
-    BaseType_t xErr = xTaskCreate(vMBTCPPortMasterTask,
+    BaseType_t xErr = xTaskCreatePinnedToCore(vMBTCPPortMasterTask,
                                     "tcp_master_task",
                                     MB_TCP_STACK_SIZE,
                                     NULL,
                                     MB_TCP_TASK_PRIO,
-                                    &xMbPortConfig.xMbTcpTaskHandle);
+                                    &xMbPortConfig.xMbTcpTaskHandle,
+                                    MB_PORT_TASK_AFFINITY);
     if (xErr != pdTRUE)
     {
         ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "TCP master task creation failure.");
@@ -160,7 +158,7 @@ static MbSlaveInfo_t* vMBTCPPortMasterFindSlaveInfo(UCHAR ucSlaveAddr)
     return xMbPortConfig.pxMbSlaveCurrInfo;
 }
 
-static MbSlaveInfo_t* vMBTCPPortMasterGetCurrInfo()
+static MbSlaveInfo_t* vMBTCPPortMasterGetCurrInfo(void)
 {
     if (!xMbPortConfig.pxMbSlaveCurrInfo) {
         ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Incorrect current slave info.");
@@ -178,6 +176,8 @@ static void vMBTCPPortMasterStartPoll(void)
         if (!(xFlags & xMasterEvent)) {
             ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Fail to start TCP stack.");
         }
+    } else {
+        ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Fail to start polling. Incorrect event handle...");
     }
 }
 
@@ -191,6 +191,8 @@ static void vMBTCPPortMasterStopPoll(void)
         if (!(xFlags & xMasterEvent)) {
             ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Fail to stop polling.");
         }
+    } else {
+        ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Fail to stop polling. Incorrect event handle...");
     }
 }
 
@@ -205,6 +207,14 @@ static void vMBTCPPortMasterMStoTimeVal(USHORT usTimeoutMs, struct timeval *tv)
 {
     tv->tv_sec = usTimeoutMs / 1000;
     tv->tv_usec = (usTimeoutMs - (tv->tv_sec * 1000)) * 1000;
+}
+
+static void xMBTCPPortMasterCheckShutdown(void) {
+    // First check if the task is not flagged for shutdown
+    if (xShutdownSemaphore) {
+        xSemaphoreGive(xShutdownSemaphore);
+        vTaskDelete(NULL);
+    }
 }
 
 static BOOL xMBTCPPortMasterCloseConnection(MbSlaveInfo_t* pxInfo)
@@ -278,6 +288,7 @@ static int xMBTCPPortMasterGetBuf(MbSlaveInfo_t* pxInfo, UCHAR* pucDstBuf, USHOR
 
     // Receive data from connected client
     while (usBytesLeft > 0) {
+        xMBTCPPortMasterCheckShutdown();
         // none blocking read from socket with timeout
         xLength = recv(pxInfo->xSockId, pucBuf, usBytesLeft, MSG_DONTWAIT);
         if (xLength < 0) {
@@ -363,6 +374,9 @@ static int vMBTCPPortMasterReadPacket(MbSlaveInfo_t* pxInfo)
 
 static err_t xMBTCPPortMasterSetNonBlocking(MbSlaveInfo_t* pxInfo)
 {
+    if (!pxInfo) {
+        return ERR_CONN;
+    }
     // Set non blocking attribute for socket
     ULONG ulFlags = fcntl(pxInfo->xSockId, F_GETFL);
     if (fcntl(pxInfo->xSockId, F_SETFL, ulFlags | O_NONBLOCK) == -1) {
@@ -491,6 +505,10 @@ BOOL xMBTCPPortMasterAddSlaveIp(const USHORT usIndex, const CHAR* pcIpStr, UCHAR
 // Unblocking connect function
 static err_t xMBTCPPortMasterConnect(MbSlaveInfo_t* pxInfo)
 {
+    if (!pxInfo) {
+        return ERR_CONN;
+    }
+
     err_t xErr = ERR_OK;
     CHAR cStr[128];
     CHAR* pcStr = NULL;
@@ -651,6 +669,7 @@ static void vMBTCPPortMasterTask(void *pvParameters)
     while (1) {
         MbSlaveAddrInfo_t xSlaveAddrInfo = { 0 };
         BaseType_t xStatus = xQueueReceive(xMbPortConfig.xConnectQueue, (void*)&xSlaveAddrInfo, portMAX_DELAY);
+        xMBTCPPortMasterCheckShutdown();
         if (xStatus != pdTRUE) {
             ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Fail to register slave IP.");
         } else {
@@ -683,7 +702,7 @@ static void vMBTCPPortMasterTask(void *pvParameters)
             pxInfo->xSendTimeStamp = xMBTCPGetTimeStamp();
             pxInfo->xMbProto = MB_PROTO_TCP;
             pxInfo->ucSlaveAddr = xSlaveAddrInfo.ucSlaveAddr;
-            pxInfo->xIndex = xSlaveAddrInfo.usIndex; //xMbPortConfig.usMbSlaveInfoCount;
+            pxInfo->xIndex = xSlaveAddrInfo.usIndex;
             pxInfo->usTidCnt = (USHORT)(xMbPortConfig.usMbSlaveInfoCount << 8U);
             // Register slave
             xMbPortConfig.pxMbSlaveInfo[xMbPortConfig.usMbSlaveInfoCount++] = pxInfo;
@@ -752,10 +771,14 @@ static void vMBTCPPortMasterTask(void *pvParameters)
                                                             pxInfo->pcIpAddr, xErr);
                         break;
                 }
-                pxInfo->xError = xErr;
+                if (pxInfo) {
+                    pxInfo->xError = xErr;
+                }
+                xMBTCPPortMasterCheckShutdown();
             }
         }
         ESP_LOGI(MB_TCP_MASTER_PORT_TAG, "Connected %d slaves, start polling...", usSlaveConnCnt);
+
         vMBTCPPortMasterStartPoll(); // Send event to start stack
 
         // Slave receive data loop
@@ -773,6 +796,7 @@ static void vMBTCPPortMasterTask(void *pvParameters)
                 ESP_LOGE(MB_TCP_MASTER_PORT_TAG, "Incorrect connection options for slave index: %d.",
                                             xMbPortConfig.ucCurSlaveIndex);
                 vMBTCPPortMasterStopPoll();
+                xMBTCPPortMasterCheckShutdown();
                 break; // incorrect slave descriptor, reconnect.
             }
             xTime = xMBTCPPortMasterGetRespTimeLeft(pxCurrInfo);
@@ -788,6 +812,7 @@ static void vMBTCPPortMasterTask(void *pvParameters)
                 xTime = xMBTCPPortMasterGetRespTimeLeft(pxCurrInfo);
                 // Wait completion of last transaction
                 xMBMasterPortFsmWaitConfirmation(MB_EVENT_REQ_DONE_MASK, pdMS_TO_TICKS(xTime + 1));
+                xMBTCPPortMasterCheckShutdown();
                 continue;
             } else if (xRes < 0) {
                 // Select error (slave connection or r/w failure).
@@ -798,38 +823,40 @@ static void vMBTCPPortMasterTask(void *pvParameters)
                 xMBMasterPortFsmWaitConfirmation(MB_EVENT_REQ_DONE_MASK, pdMS_TO_TICKS(xTime));
                 // Stop polling process
                 vMBTCPPortMasterStopPoll();
+                xMBTCPPortMasterCheckShutdown();
                 // Check disconnected slaves, do not need a result just to print information.
                 xMBTCPPortMasterCheckConnState(&xConnSet);
                 break;
             } else {
                 // Check to make sure that active slave data is ready
                 if (FD_ISSET(pxCurrInfo->xSockId, &xReadSet)) {
-                    xErr = ERR_BUF;
-                    for (int retry = 0; (xErr == ERR_BUF) && (retry < MB_TCP_READ_BUF_RETRY_CNT); retry++) {
-                        xErr = vMBTCPPortMasterReadPacket(pxCurrInfo);
+                    int xRet = ERR_BUF;
+                    for (int retry = 0; (xRet == ERR_BUF) && (retry < MB_TCP_READ_BUF_RETRY_CNT); retry++) {
+                        xRet = vMBTCPPortMasterReadPacket(pxCurrInfo);
                         // The error ERR_BUF means received response to previous request
                         // (due to timeout) with the same socket ID and incorrect TID,
                         // then ignore it and try to get next response buffer.
                     }
-                    if (xErr > 0) {
+                    if (xRet > 0) {
                         // Response received correctly, send an event to stack
                         xMBTCPPortMasterFsmSetError(EV_ERROR_INIT, EV_MASTER_FRAME_RECEIVED);
                         ESP_LOGD(MB_TCP_MASTER_PORT_TAG, MB_SLAVE_FMT(", frame received."),
                                     pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr);
-                    } else if ((xErr == ERR_TIMEOUT) || (xMBTCPPortMasterGetRespTimeLeft(pxCurrInfo) == 0)) {
+                    } else if ((xRet == ERR_TIMEOUT) || (xMBTCPPortMasterGetRespTimeLeft(pxCurrInfo) == 0)) {
                         // Timeout occurred when receiving frame, process respond timeout
                         ESP_LOGD(MB_TCP_MASTER_PORT_TAG, MB_SLAVE_FMT(", frame read timeout."),
                                     pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr);
-                    } else if (xErr == ERR_BUF) {
+                    } else if (xRet == ERR_BUF) {
                         // After retries a response with incorrect TID received, process failure.
                         xMBTCPPortMasterFsmSetError(EV_ERROR_RECEIVE_DATA, EV_MASTER_ERROR_PROCESS);
                         ESP_LOGD(MB_TCP_MASTER_PORT_TAG, MB_SLAVE_FMT(", frame error."),
                                     pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr);
                     } else {
                         ESP_LOGE(MB_TCP_MASTER_PORT_TAG, MB_SLAVE_FMT(", critical error=%d."),
-                                    pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr, xErr);
+                                    pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr, xRet);
                         // Stop polling process
                         vMBTCPPortMasterStopPoll();
+                        xMBTCPPortMasterCheckShutdown();
                         // Check disconnected slaves, do not need a result just to print information.
                         xMBTCPPortMasterCheckConnState(&xConnSet);
                         break;
@@ -846,6 +873,7 @@ static void vMBTCPPortMasterTask(void *pvParameters)
                                                     pxCurrInfo->xIndex, pxCurrInfo->xSockId, pxCurrInfo->pcIpAddr, xTime);
                 }
             }
+            xMBTCPPortMasterCheckShutdown();
         } // while(usMbSlaveInfoCount)
     } // while (1)
     vTaskDelete(NULL);
@@ -853,18 +881,6 @@ static void vMBTCPPortMasterTask(void *pvParameters)
 
 extern void vMBMasterPortEventClose(void);
 extern void vMBMasterPortTimerClose(void);
-
-void
-vMBMasterTCPPortClose(void)
-{
-    (void)vTaskDelete(xMbPortConfig.xMbTcpTaskHandle);
-    (void)vMBMasterTCPPortDisable();
-    free(xMbPortConfig.pxMbSlaveInfo);
-    vQueueDelete(xMbPortConfig.xConnectQueue);
-    vMBMasterPortTimerClose();
-    // Release resources for the event queue.
-    vMBMasterPortEventClose();
-}
 
 void
 vMBMasterTCPPortDisable(void)
@@ -880,6 +896,29 @@ vMBMasterTCPPortDisable(void)
             xMbPortConfig.pxMbSlaveInfo[ucCnt] = NULL;
         }
     }
+}
+
+void
+vMBMasterTCPPortClose(void)
+{
+    // Try to exit the task gracefully, so select could release its internal callbacks
+    // that were allocated on the stack of the task we're going to delete
+    xShutdownSemaphore = xSemaphoreCreateBinary();
+    // if no semaphore (alloc issues) or couldn't acquire it, just delete the task
+    if (xShutdownSemaphore == NULL || xSemaphoreTake(xShutdownSemaphore, pdMS_TO_TICKS(MB_EVENT_WAIT_TOUT_MS)) != pdTRUE) {
+        ESP_LOGW(MB_TCP_MASTER_PORT_TAG, "Modbus port task couldn't exit gracefully within timeout -> abruptly deleting the task.");
+        vTaskDelete(xMbPortConfig.xMbTcpTaskHandle);
+    }
+    if (xShutdownSemaphore) {
+        vSemaphoreDelete(xShutdownSemaphore);
+        xShutdownSemaphore = NULL;
+    }
+    vMBMasterTCPPortDisable();
+    free(xMbPortConfig.pxMbSlaveInfo);
+    vQueueDelete(xMbPortConfig.xConnectQueue);
+    vMBMasterPortTimerClose();
+    // Release resources for the event queue.
+    vMBMasterPortEventClose();
 }
 
 BOOL
@@ -929,6 +968,7 @@ xMBMasterTCPPortSendResponse( UCHAR * pucMBTCPFrame, USHORT usTCPLength )
         // Apply TID field to the frame before send
         pucMBTCPFrame[MB_TCP_TID] = (UCHAR)(pxInfo->usTidCnt >> 8U);
         pucMBTCPFrame[MB_TCP_TID + 1] = (UCHAR)(pxInfo->usTidCnt & 0xFF);
+        pucMBTCPFrame[MB_TCP_UID] = pxInfo->ucSlaveAddr;
         int xRes = xMBMasterTCPPortWritePoll(pxInfo, pucMBTCPFrame, usTCPLength, MB_TCP_SEND_TIMEOUT_MS);
         if (xRes < 0) {
             ESP_LOGE(MB_TCP_MASTER_PORT_TAG, MB_SLAVE_FMT(", send data failure, err(errno) = %d(%d)."),
@@ -972,3 +1012,5 @@ xMBMasterTCPTimerExpired(void)
 
     return xNeedPoll;
 }
+
+#endif //#if MB_MASTER_TCP_ENABLED

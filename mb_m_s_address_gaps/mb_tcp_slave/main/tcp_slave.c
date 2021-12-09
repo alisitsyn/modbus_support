@@ -49,6 +49,12 @@
 
 #define SLAVE_TAG "SLAVE_TEST"
 
+#define SLAVE_CHECK(a, ret_val, str, ...) \
+    if (!(a)) { \
+        ESP_LOGE(SLAVE_TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+        return (ret_val); \
+    }
+ 
 static portMUX_TYPE param_lock = portMUX_INITIALIZER_UNLOCKED;
 
 #if CONFIG_MB_MDNS_IP_RESOLVER
@@ -65,12 +71,6 @@ static portMUX_TYPE param_lock = portMUX_INITIALIZER_UNLOCKED;
 #endif
 
 #define MB_SLAVE_ADDR (CONFIG_MB_SLAVE_ADDR)
-
-#define SLAVE_CHECK(a, ret_val, str, ...) \
-    if (!(a)) { \
-        ESP_LOGE(SLAVE_TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        return (ret_val); \
-    }
 
 #define MB_MDNS_INSTANCE(pref) pref"mb_slave_tcp"
 
@@ -257,10 +257,12 @@ static esp_err_t init_services(void)
     SLAVE_CHECK((result == ESP_OK), ESP_ERR_INVALID_STATE,
                                 "example_connect fail, returns(0x%x).",
                                 (uint32_t)result);
+#if CONFIG_EXAMPLE_CONNECT_WIFI
     result = esp_wifi_set_ps(WIFI_PS_NONE);
     SLAVE_CHECK((result == ESP_OK), ESP_ERR_INVALID_STATE,
                                     "esp_event_loop_create_default fail, returns(0x%x).",
                                     (uint32_t)result);
+#endif
     return ESP_OK;
 }
 
@@ -320,41 +322,59 @@ static esp_err_t slave_init(mb_communication_info_t* comm_info)
     reg_area.type = MB_PARAM_HOLDING; // Set type of register area
     reg_area.start_offset = MB_REG_HOLDING_START_AREA0; // Offset of register area in Modbus protocol
     reg_area.address = (void*)&holding_reg_params.holding_data0; // Set pointer to storage instance
-    reg_area.size = sizeof(float) << 2; // Set the size of register storage instance
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
+    reg_area.size = (MB_REG_HOLDING_START_AREA1 - MB_REG_HOLDING_START_AREA0) << 1; // Set the size of register storage instance
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                    "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                    (uint32_t)err);
 
     reg_area.type = MB_PARAM_HOLDING; // Set type of register area
     reg_area.start_offset = MB_REG_HOLDING_START_AREA1; // Offset of register area in Modbus protocol
     reg_area.address = (void*)&holding_reg_params.holding_data4; // Set pointer to storage instance
     reg_area.size = sizeof(float) << 2; // Set the size of register storage instance
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                    "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                    (uint32_t)err);
 
     // Initialization of Input Registers area
     reg_area.type = MB_PARAM_INPUT;
     reg_area.start_offset = MB_REG_INPUT_START_AREA0;
     reg_area.address = (void*)&input_reg_params.input_data0;
     reg_area.size = sizeof(float) << 2;
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
-    // Initialization of Input Registers area
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                        "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                        (uint32_t)err);
     reg_area.type = MB_PARAM_INPUT;
     reg_area.start_offset = MB_REG_INPUT_START_AREA1;
     reg_area.address = (void*)&input_reg_params.input_data4;
     reg_area.size = sizeof(float) << 2;
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                        "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                        (uint32_t)err);
 
     // Initialization of Coils register area
     reg_area.type = MB_PARAM_COIL;
     reg_area.start_offset = MB_REG_COILS_START;
     reg_area.address = (void*)&coil_reg_params;
     reg_area.size = sizeof(coil_reg_params);
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                    "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                    (uint32_t)err);
 
     // Initialization of Discrete Inputs register area
     reg_area.type = MB_PARAM_DISCRETE;
     reg_area.start_offset = MB_REG_DISCRETE_INPUT_START;
     reg_area.address = (void*)&discrete_reg_params;
     reg_area.size = sizeof(discrete_reg_params);
-    ESP_ERROR_CHECK(mbc_slave_set_descriptor(reg_area));
+    err = mbc_slave_set_descriptor(reg_area);
+    SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
+                                    "mbc_slave_set_descriptor fail, returns(0x%x).",
+                                    (uint32_t)err);
+
     // Set values into known state
     setup_reg_data();
 

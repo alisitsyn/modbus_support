@@ -4,7 +4,6 @@
 set(MB_COMPONENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../mb_component")
 if(EXISTS ${MB_COMPONENT_DIR}/tcp_master)
     #list(APPEND EXTRA_COMPONENT_DIRS ${MB_COMPONENT_DIR})
-    #set(MB_COMPONENT_DIR "$ENV{IDF_PATH}/components/freemodbus")
     message(STATUS "Use project component folder ${MB_COMPONENT_DIR}.")
 endif()
 

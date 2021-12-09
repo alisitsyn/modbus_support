@@ -1,4 +1,11 @@
 /*
+ * SPDX-FileCopyrightText: 2006 Christian Walter
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * SPDX-FileContributor: 2016-2021 Espressif Systems (Shanghai) CO LTD
+ */
+/*
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
@@ -91,8 +98,6 @@ eMBMasterTCPStart( void )
 void
 eMBMasterTCPStop( void )
 {
-    /* Make sure that no more clients are connected. */
-    vMBMasterTCPPortDisable( );
 }
 
 eMBErrorCode
