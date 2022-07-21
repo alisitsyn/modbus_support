@@ -1,0 +1,97 @@
+menu "Http_File_Serving Example menu"
+
+    config EXAMPLE_MOUNT_SD_CARD
+        bool "Mount the SD card to the filesystem"
+        default n
+        help
+            If this config item is set, the file you upload to server can be chosen to save in the SDcard.
+
+    config EXAMPLE_FORMAT_IF_MOUNT_SDCARD_FAILED
+        bool "The card will be formatted if mount has failed."
+        default n
+        depends on EXAMPLE_MOUNT_SD_CARD
+        help
+            If this config item is set, the card will be formatted if mount has failed.
+
+    config EXAMPLE_USE_SDMMC_HOST
+        bool "Use SDMMC host"
+        default y
+        depends on EXAMPLE_MOUNT_SD_CARD && IDF_TARGET_ESP32
+        help
+            If this config item is set, SDMMC is used to mount the SDcard.
+            Otherwise, will use SPI host to access and mount the SDcard.
+
+    config EXAMPLE_HTTPD_CONN_CLOSE_HEADER
+        bool "Send connection close header from request handlers"
+        default y
+        help
+            If this config item is set, Connection: close header will be set in handlers.
+            This closes HTTP connection and frees the server socket instantly.
+endmenu
+
+menu "Modbus Example Configuration"
+
+    config MB_UART_PORT_NUM
+        int "UART port number"
+        range 0 2 if IDF_TARGET_ESP32
+        default 2 if IDF_TARGET_ESP32
+        range 0 1 if IDF_TARGET_ESP32S2
+        default 1 if IDF_TARGET_ESP32S2
+        help
+            UART communication port number for Modbus example.
+
+    config MB_UART_BAUD_RATE
+        int "UART communication speed"
+        range 1200 115200
+        default 115200
+        help
+            UART communication speed for Modbus example.
+
+    config MB_UART_RXD
+        int "UART RXD pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 22 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 19 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART RX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config MB_UART_TXD
+        int "UART TXD pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 23 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 20 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART TX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config MB_UART_RTS
+        int "UART RTS pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 18
+        help
+            GPIO number for UART RTS pin. This pin is connected to
+            ~RE/DE pin of RS485 transceiver to switch direction.
+            See UART documentation for more information about available pin
+            numbers for UART.
+
+    choice MB_COMM_MODE
+        prompt "Modbus communication mode"
+        default MB_COMM_MODE_RTU if CONFIG_FMB_COMM_MODE_RTU_EN
+        help
+            Selection of Modbus communication mode option for Modbus.
+
+        config MB_COMM_MODE_RTU
+            bool "RTU mode"
+            depends on FMB_COMM_MODE_RTU_EN
+
+        config MB_COMM_MODE_ASCII
+            bool "ASCII mode"
+            depends on FMB_COMM_MODE_ASCII_EN
+
+    endchoice
+
+endmenu
