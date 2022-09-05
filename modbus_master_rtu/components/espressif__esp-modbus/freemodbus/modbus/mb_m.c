@@ -380,7 +380,7 @@ eMBMasterPoll(void)
                             ( void ) xMBMasterPortEventPost( EV_MASTER_EXECUTE );
                         } else {
                             ESP_LOGE( MB_PORT_TAG, "Drop incorrect frame, receive_func(%u) != send_func(%u)",
-                                    ucMBRcvFrame[MB_PDU_FUNC_OFF], ucMBSendFrame[MB_PDU_FUNC_OFF]);
+                                            ucMBRcvFrame[MB_PDU_FUNC_OFF], ucMBSendFrame[MB_PDU_FUNC_OFF]);
                             vMBMasterSetErrorType(EV_ERROR_RECEIVE_DATA);
                             ( void ) xMBMasterPortEventPost( EV_MASTER_ERROR_PROCESS );
                         }

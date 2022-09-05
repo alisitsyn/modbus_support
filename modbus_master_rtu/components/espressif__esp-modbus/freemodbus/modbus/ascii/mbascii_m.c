@@ -311,10 +311,8 @@ xMBMasterASCIITimerT1SExpired(void)
     {
         case MB_TMODE_T35:
             eRcvState = STATE_M_RX_IDLE;
-            if (eRcvState == STATE_M_RX_INIT) {
-                xNeedPoll = xMBMasterPortEventPost(EV_MASTER_READY);
-                ESP_EARLY_LOGD("TIMER_INT", "EV_MASTER_READY");
-            }
+            xNeedPoll = xMBMasterPortEventPost(EV_MASTER_READY);
+            ESP_EARLY_LOGD("TIMER_INT", "EV_MASTER_READY");
             break;
 
         case MB_TMODE_RESPOND_TIMEOUT:

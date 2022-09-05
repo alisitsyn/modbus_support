@@ -139,7 +139,7 @@ eMBMasterRTUStart( void )
      * to STATE_M_RX_IDLE. This makes sure that we delay startup of the
      * modbus protocol stack until the bus is free.
      */
-    eRcvState = STATE_M_RX_IDLE; //STATE_M_RX_INIT (We start processing immediately)
+    eRcvState = STATE_M_RX_INIT;
     vMBMasterPortSerialEnable( TRUE, FALSE );
     vMBMasterPortTimersT35Enable(  );
 
@@ -162,6 +162,8 @@ eMBMasterRTUReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame, USHORT * pusLengt
     UCHAR          *pucMBRTUFrame = ( UCHAR* ) ucMasterRTURcvBuf;
     USHORT          usFrameLength = usMasterRcvBufferPos;
     
+    eRcvState = STATE_M_RX_RCV;
+
     if ( xMBMasterPortSerialGetResponse( &pucMBRTUFrame, &usFrameLength ) == FALSE )
     {
         return MB_EIO;
@@ -171,8 +173,6 @@ eMBMasterRTUReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame, USHORT * pusLengt
     assert( pucMBRTUFrame );
 
     ENTER_CRITICAL_SECTION(  );
-
-    eRcvState = STATE_M_RX_RCV;
 
     /* Length and CRC check */
     if ( ( usFrameLength >= MB_RTU_SER_PDU_SIZE_MIN )
@@ -253,9 +253,7 @@ eMBMasterRTUSend( UCHAR ucSlaveAddress, const UCHAR * pucFrame, USHORT usLength 
         }
 
         eSndState = STATE_M_TX_IDLE;
-    }
-    else
-    {
+    } else {
         eStatus = MB_EIO;
     }
     return eStatus;
@@ -286,11 +284,8 @@ xMBMasterRTUTimerExpired(void)
     switch (eMasterTimerMode) 
     {
         case MB_TMODE_T35:
-            eRcvState = STATE_M_RX_IDLE;
-            if (eRcvState == STATE_M_RX_INIT) {
-                xNeedPoll = xMBMasterPortEventPost(EV_MASTER_READY);
-                ESP_EARLY_LOGD("TIMER_INT", "EV_MASTER_READY");
-            }
+            xNeedPoll = xMBMasterPortEventPost(EV_MASTER_READY);
+            ESP_EARLY_LOGD("TIMER_INT", "EV_MASTER_READY");
             break;
 
         case MB_TMODE_RESPOND_TIMEOUT:
@@ -305,6 +300,8 @@ xMBMasterRTUTimerExpired(void)
             ESP_EARLY_LOGD("TIMER_INT", "MB_TMODE_CONVERT_DELAY");
             break;
     }
+
+    eRcvState = STATE_M_RX_IDLE;
 
     return xNeedPoll;
 }
