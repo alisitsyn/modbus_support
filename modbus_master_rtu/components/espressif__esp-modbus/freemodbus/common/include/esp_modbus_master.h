@@ -257,7 +257,16 @@ esp_err_t mbc_master_get_parameter(uint16_t cid, char* name, uint8_t* value, uin
  *     - esp_err_t ESP_ERR_NOT_SUPPORTED - the request command is not supported by slave
  *     - esp_err_t ESP_FAIL - slave returned an exception or other failure
 */
+
 esp_err_t mbc_master_set_parameter(uint16_t cid, char* name, uint8_t* value, uint8_t *type);
+/**
+ * @brief Flush the master receiver buffer when transaction is expired due to timeout.
+ *
+ * @param none
+ * 
+ * @return none
+ */
+void mbc_master_flush_resp(void);
 
 #ifdef __cplusplus
 }
