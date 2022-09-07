@@ -45,7 +45,7 @@ typedef struct {
     uint64_t recv_time_stamp;
     uint32_t int_flags;
     RingbufHandle_t ring_buffer;
-    bool col_detected;
+    bool collision_detected;
 } port_context_t;
 
 // The UART hardware context
@@ -61,7 +61,7 @@ static port_context_t port_context = {
         .send_time_stamp = 0, \
         .int_flags = 0, \
         .ring_buffer = NULL, \
-        .col_detected = false
+        .collision_detected = false
 };
 
 #define PORT_ENTER_CRITICAL() portENTER_CRITICAL_SAFE(&port_context.spin_lock)
@@ -188,12 +188,15 @@ void drv_switch_direction(uart_hal_context_t* hal, bool rx_enable)
     }
 }
 
+// Sends the packet using HAL API and checks collisions.
+// If the collision detected in the transmitted packet then returns true, otherwize false. 
 bool drv_send_data_check_collision(uart_hal_context_t* hal, uint8_t* pbuf, size_t buf_size)
 {
     uint32_t counter = buf_size;
     uint8_t* pdata = pbuf;
-    drv_switch_direction(hal, false);
     
+    drv_switch_direction(hal, false);
+    port_context.collision_detected = false;
     // Write request to UART and then wait for response
     while(counter > 0) {
         size_t size = (counter > TEST_TX_FIFO_SIZE) ? TEST_TX_FIFO_SIZE : counter;
@@ -205,6 +208,7 @@ bool drv_send_data_check_collision(uart_hal_context_t* hal, uint8_t* pbuf, size_
             // clear the rx buffer to remove uart receive echo in current mode
             hal->dev->conf0.rxfifo_rst = 0;
             if (drv_check_collision()) {
+                port_context.collision_detected = true;
                 ESP_LOG_BUFFER_HEXDUMP("UART_COLLISON", pdata, act_size, ESP_LOG_ERROR);
             } else {
                 //ESP_LOG_BUFFER_HEXDUMP("UART_SENT", pdata, act_size, ESP_LOG_INFO);
@@ -217,7 +221,7 @@ bool drv_send_data_check_collision(uart_hal_context_t* hal, uint8_t* pbuf, size_
     hal->dev->conf0.rxfifo_rst = 0;
     drv_switch_direction(hal, true);
     
-    return (buf_size - counter);
+    return port_context.collision_detected;
 }
 
 static void drv_init(void)
@@ -284,7 +288,7 @@ void app_main()
 
     while(cycle_counter++ < TEST_RETRIES)
     {
-        for(int i = 1; i < 10; i++) {
+        for(int i = 1; i < 3; i++) {
             drv_fill_buffer(psend_buf, TEST_TX_FIFO_SIZE);
             // We do not need to check the collision here, let us to it inside the send function
             drv_send_data_check_collision(&port_context.hal, (uint8_t*)psend_buf, TEST_TX_FIFO_SIZE);
