@@ -1,0 +1,48 @@
+menu "UART Example Configuration"
+
+    config UART_PORT_NUM
+        int "UART port number"
+        range 0 2 if IDF_TARGET_ESP32
+        default 2 if IDF_TARGET_ESP32
+        range 0 1 if IDF_TARGET_ESP32S2
+        default 1 if IDF_TARGET_ESP32S2
+        help
+            UART communication port number for example.
+
+    config UART_BAUD_RATE
+        int "UART communication speed"
+        range 1200 115200
+        default 115200
+        help
+            UART communication speed for example.
+
+    config UART_RXD
+        int "UART RXD pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 22 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 19 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART RX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config UART_TXD
+        int "UART TXD pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 23 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 20 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART TX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config UART_RTS
+        int "UART TXD pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 18 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 18 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART RTS pin. See UART documentation for more information
+            about available pin numbers for UART.
+endmenu

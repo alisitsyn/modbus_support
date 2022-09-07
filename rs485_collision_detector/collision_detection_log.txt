@@ -1,0 +1,165 @@
+I (26) boot: ESP-IDF v4.4.2-140-g91e6b5de70-dirty 2nd stage bootloader
+I (26) boot: compile time 11:13:37
+I (27) boot: chip revision: 1
+I (31) boot_comm: chip revision: 1, min. bootloader chip revision: 0
+I (38) boot.esp32: SPI Speed      : 40MHz
+I (43) boot.esp32: SPI Mode       : DIO
+I (47) boot.esp32: SPI Flash Size : 2MB
+I (52) boot: Enabling RNG early entropy source...
+I (57) boot: Partition Table:
+I (61) boot: ## Label            Usage          Type ST Offset   Length
+I (68) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (83) boot:  2 factory          factory app      00 00 00010000 00100000
+I (90) boot: End of partition table
+I (95) boot_comm: chip revision: 1, min. application chip revision: 0
+I (102) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=099bch ( 39356) map
+I (125) esp_image: segment 1: paddr=000199e4 vaddr=3ffb0000 size=023a0h (  9120) load
+I (128) esp_image: segment 2: paddr=0001bd8c vaddr=40080000 size=0428ch ( 17036) load
+I (137) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=1807ch ( 98428) map
+I (174) esp_image: segment 4: paddr=000380a4 vaddr=4008428c size=0823ch ( 33340) load
+I (188) esp_image: segment 5: paddr=000402e8 vaddr=50000000 size=00010h (    16) load
+I (195) boot: Loaded app from partition at offset 0x10000
+I (195) boot: Disabling RNG early entropy source...
+I (209) cpu_start: Pro cpu up.
+I (209) cpu_start: Starting app cpu, entry point is 0x4008112c
+0x4008112c: call_start_cpu1 at /home/esp-man/esp32/esp-idf/components/esp_system/port/cpu_start.c:148
+
+I (0) cpu_start: App cpu up.
+I (223) cpu_start: Pro cpu start user code
+I (223) cpu_start: cpu freq: 160000000
+I (223) cpu_start: Application information:
+I (227) cpu_start: Project name:     rs485_collision_detector
+I (234) cpu_start: App version:      2cd71bc-dirty
+I (239) cpu_start: Compile time:     Sep  7 2022 11:13:34
+I (245) cpu_start: ELF file SHA256:  6cb3c78404c4e913...
+I (251) cpu_start: ESP-IDF:          v4.4.2-140-g91e6b5de70-dirty
+I (258) heap_init: Initializing. RAM available for dynamic allocation:
+I (265) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (272) heap_init: At 3FFB2DA0 len 0002D260 (180 KiB): DRAM
+I (278) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (284) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (291) heap_init: At 4008C4C8 len 00013B38 (78 KiB): IRAM
+I (298) spi_flash: detected chip: generic
+I (301) spi_flash: flash io: dio
+W (305) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (319) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+W (1744) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 0	freeptr: 0	wptr: 0, aptr: 0
+W (2454) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 0	freeptr: 0	wptr: 0, aptr: 0
+W (3164) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 0	freeptr: 0	wptr: 0, aptr: 0
+W (3874) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 0	freeptr: 0	wptr: 0, aptr: 0
+W (4574) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 0	freeptr: 0	wptr: 0, aptr: 0
+E (4684) UART_COLLISON: 0x3ffb6ef0   80 81 82 83 84 85 86 87  88 89 8a 8b 8c 8d 8e 8f  |................|
+E (4684) UART_COLLISON: 0x3ffb6f00   90 91 92 93 94 95 96 97  98 99 9a 9b 9c 9d 9e 9f  |................|
+E (4694) UART_COLLISON: 0x3ffb6f10   a0 a1 a2 a3 a4 a5 a6 a7  a8 a9 aa ab ac ad ae af  |................|
+E (4704) UART_COLLISON: 0x3ffb6f20   b0 b1 b2 b3 b4 b5 b6 b7  b8 b9 ba bb bc bd be bf  |................|
+E (4714) UART_COLLISON: 0x3ffb6f30   c0 c1 c2 c3 c4 c5 c6 c7  c8 c9 ca cb cc cd ce cf  |................|
+E (4724) UART_COLLISON: 0x3ffb6f40   d0 d1 d2 d3 d4 d5 d6 d7  d8 d9 da db dc dd de df  |................|
+E (4734) UART_COLLISON: 0x3ffb6f50   e0 e1 e2 e3 e4 e5 e6 e7  e8 e9 ea eb ec ed ee ef  |................|
+E (4744) UART_COLLISON: 0x3ffb6f60   f0 f1 f2 f3 f4 f5 f6 f7  f8 f9 fa fb fc fd fe ff  |................|
+W (4894) UART TOUT INT: UART received 8 bytes of data.
+I (4894) UART_TASK: Ring Buffer receive size: 3ffb6c74:(8 byte)
+I (4894) UART_TASK: 0x3ffb6c74   01 03 00 00 00 02 c4 0b                           |........|
+Rb size:512	free: 512	rptr: 16	freeptr: 16	wptr: 16, aptr: 16
+W (5384) UART TOUT INT: UART received 8 bytes of data.
+I (5384) UART_TASK: Ring Buffer receive size: 3ffb6c84:(8 byte)
+I (5384) UART_TASK: 0x3ffb6c84   1a ad 82 55 38 93 ea 78                           |...U8..x|
+Rb size:512	free: 512	rptr: 32	freeptr: 32	wptr: 32, aptr: 32
+W (5744) UART TOUT INT: UART received 8 bytes of data.
+I (5744) UART_TASK: Ring Buffer receive size: 3ffb6c94:(8 byte)
+I (5744) UART_TASK: 0x3ffb6c94   0f 41 02 9b 68 00 4d 05                           |.A..h.M.|
+Rb size:512	free: 512	rptr: 48	freeptr: 48	wptr: 48, aptr: 48
+W (6114) UART TOUT INT: UART received 8 bytes of data.
+I (6114) UART_TASK: Ring Buffer receive size: 3ffb6ca4:(8 byte)
+I (6114) UART_TASK: 0x3ffb6ca4   56 45 72 db 0e 28 89 71                           |VEr..(.q|
+Rb size:512	free: 512	rptr: 64	freeptr: 64	wptr: 64, aptr: 64
+W (6474) UART TOUT INT: UART received 8 bytes of data.
+I (6474) UART_TASK: Ring Buffer receive size: 3ffb6cb4:(8 byte)
+I (6474) UART_TASK: 0x3ffb6cb4   40 fb 7b c2 17 20 01 2b                           |@.{.. .+|
+Rb size:512	free: 512	rptr: 80	freeptr: 80	wptr: 80, aptr: 80
+W (6844) UART TOUT INT: UART received 8 bytes of data.
+I (6844) UART_TASK: Ring Buffer receive size: 3ffb6cc4:(8 byte)
+I (6844) UART_TASK: 0x3ffb6cc4   59 ee eb 48 eb 4f a5 a4                           |Y..H.O..|
+Rb size:512	free: 512	rptr: 96	freeptr: 96	wptr: 96, aptr: 96
+W (7204) UART TOUT INT: UART received 8 bytes of data.
+I (7204) UART_TASK: Ring Buffer receive size: 3ffb6cd4:(8 byte)
+I (7204) UART_TASK: 0x3ffb6cd4   b4 4e 1a eb 03 c8 98 aa                           |.N......|
+Rb size:512	free: 512	rptr: 112	freeptr: 112	wptr: 112, aptr: 112
+W (7564) UART TOUT INT: UART received 8 bytes of data.
+I (7564) UART_TASK: Ring Buffer receive size: 3ffb6ce4:(8 byte)
+I (7574) UART_TASK: 0x3ffb6ce4   af 6d a4 cd 07 e5 e9 77                           |.m.....w|
+Rb size:512	free: 512	rptr: 128	freeptr: 128	wptr: 128, aptr: 128
+W (8294) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 128	freeptr: 128	wptr: 128, aptr: 128
+E (8444) UART_COLLISON: 0x3ffb6e70   00 01 02 03 04 05 06 07  08 09 0a 0b 0c 0d 0e 0f  |................|
+E (8444) UART_COLLISON: 0x3ffb6e80   10 11 12 13 14 15 16 17  18 19 1a 1b 1c 1d 1e 1f  |................|
+E (8454) UART_COLLISON: 0x3ffb6e90   20 21 22 23 24 25 26 27  28 29 2a 2b 2c 2d 2e 2f  | !"#$%&'()*+,-./|
+E (8464) UART_COLLISON: 0x3ffb6ea0   30 31 32 33 34 35 36 37  38 39 3a 3b 3c 3d 3e 3f  |0123456789:;<=>?|
+E (8474) UART_COLLISON: 0x3ffb6eb0   40 41 42 43 44 45 46 47  48 49 4a 4b 4c 4d 4e 4f  |@ABCDEFGHIJKLMNO|
+E (8484) UART_COLLISON: 0x3ffb6ec0   50 51 52 53 54 55 56 57  58 59 5a 5b 5c 5d 5e 5f  |PQRSTUVWXYZ[\]^_|
+E (8494) UART_COLLISON: 0x3ffb6ed0   60 61 62 63 64 65 66 67  68 69 6a 6b 6c 6d 6e 6f  |`abcdefghijklmno|
+E (8504) UART_COLLISON: 0x3ffb6ee0   70 71 72 73 74 75 76 77  78 79 7a 7b 7c 7d 7e 7f  |pqrstuvwxyz{|}~.|
+W (8714) UART TOUT INT: UART received 8 bytes of data.
+I (8714) UART_TASK: Ring Buffer receive size: 3ffb6cf4:(8 byte)
+I (8714) UART_TASK: 0x3ffb6cf4   01 03 00 00 00 02 c4 0b                           |........|
+Rb size:512	free: 512	rptr: 144	freeptr: 144	wptr: 144, aptr: 144
+W (9074) UART TOUT INT: UART received 8 bytes of data.
+I (9074) UART_TASK: Ring Buffer receive size: 3ffb6d04:(8 byte)
+I (9074) UART_TASK: 0x3ffb6d04   1a ad 82 55 38 93 ea 78                           |...U8..x|
+Rb size:512	free: 512	rptr: 160	freeptr: 160	wptr: 160, aptr: 160
+W (9444) UART TOUT INT: UART received 8 bytes of data.
+I (9444) UART_TASK: Ring Buffer receive size: 3ffb6d14:(8 byte)
+I (9444) UART_TASK: 0x3ffb6d14   0f 41 02 9b 68 00 4d 05                           |.A..h.M.|
+Rb size:512	free: 512	rptr: 176	freeptr: 176	wptr: 176, aptr: 176
+W (9804) UART TOUT INT: UART received 8 bytes of data.
+I (9804) UART_TASK: Ring Buffer receive size: 3ffb6d24:(8 byte)
+I (9804) UART_TASK: 0x3ffb6d24   56 45 72 db 0e 28 89 71                           |VEr..(.q|
+Rb size:512	free: 512	rptr: 192	freeptr: 192	wptr: 192, aptr: 192
+W (10174) UART TOUT INT: UART received 8 bytes of data.
+I (10174) UART_TASK: Ring Buffer receive size: 3ffb6d34:(8 byte)
+I (10174) UART_TASK: 0x3ffb6d34   40 fb 7b c2 17 20 01 2b                           |@.{.. .+|
+Rb size:512	free: 512	rptr: 208	freeptr: 208	wptr: 208, aptr: 208
+W (10534) UART TOUT INT: UART received 8 bytes of data.
+I (10534) UART_TASK: Ring Buffer receive size: 3ffb6d44:(8 byte)
+I (10534) UART_TASK: 0x3ffb6d44   59 ee eb 48 eb 4f a5 a4                           |Y..H.O..|
+Rb size:512	free: 512	rptr: 224	freeptr: 224	wptr: 224, aptr: 224
+W (10904) UART TOUT INT: UART received 8 bytes of data.
+I (10904) UART_TASK: Ring Buffer receive size: 3ffb6d54:(8 byte)
+I (10904) UART_TASK: 0x3ffb6d54   b4 4e 1a eb 03 c8 98 aa                           |.N......|
+Rb size:512	free: 512	rptr: 240	freeptr: 240	wptr: 240, aptr: 240
+W (11264) UART TOUT INT: UART received 8 bytes of data.
+I (11264) UART_TASK: Ring Buffer receive size: 3ffb6d64:(8 byte)
+I (11264) UART_TASK: 0x3ffb6d64   af 6d a4 cd 07 e5 e9 77                           |.m.....w|
+Rb size:512	free: 512	rptr: 256	freeptr: 256	wptr: 256, aptr: 256
+W (11994) UART_TASK: Receive buffer is empty.
+Rb size:512	free: 512	rptr: 256	freeptr: 256	wptr: 256, aptr: 256
+E (12114) UART_COLLISON: 0x3ffb6e70   00 01 02 03 04 05 06 07  08 09 0a 0b 0c 0d 0e 0f  |................|
+E (12114) UART_COLLISON: 0x3ffb6e80   10 11 12 13 14 15 16 17  18 19 1a 1b 1c 1d 1e 1f  |................|
+E (12124) UART_COLLISON: 0x3ffb6e90   20 21 22 23 24 25 26 27  28 29 2a 2b 2c 2d 2e 2f  | !"#$%&'()*+,-./|
+E (12134) UART_COLLISON: 0x3ffb6ea0   30 31 32 33 34 35 36 37  38 39 3a 3b 3c 3d 3e 3f  |0123456789:;<=>?|
+E (12144) UART_COLLISON: 0x3ffb6eb0   40 41 42 43 44 45 46 47  48 49 4a 4b 4c 4d 4e 4f  |@ABCDEFGHIJKLMNO|
+E (12164) UART_COLLISON: 0x3ffb6ec0   50 51 52 53 54 55 56 57  58 59 5a 5b 5c 5d 5e 5f  |PQRSTUVWXYZ[\]^_|
+E (12174) UART_COLLISON: 0x3ffb6ed0   60 61 62 63 64 65 66 67  68 69 6a 6b 6c 6d 6e 6f  |`abcdefghijklmno|
+E (12184) UART_COLLISON: 0x3ffb6ee0   70 71 72 73 74 75 76 77  78 79 7a 7b 7c 7d 7e 7f  |pqrstuvwxyz{|}~.|
+W (12604) UART TOUT INT: UART received 8 bytes of data.
+I (12604) UART_TASK: Ring Buffer receive size: 3ffb6d74:(8 byte)
+I (12604) UART_TASK: 0x3ffb6d74   01 03 00 00 00 02 c4 0b                           |........|
+Rb size:512	free: 512	rptr: 272	freeptr: 272	wptr: 272, aptr: 272
+W (12964) UART TOUT INT: UART received 8 bytes of data.
+I (12964) UART_TASK: Ring Buffer receive size: 3ffb6d84:(8 byte)
+I (12964) UART_TASK: 0x3ffb6d84   1a ad 82 55 38 93 ea 78                           |...U8..x|
+Rb size:512	free: 512	rptr: 288	freeptr: 288	wptr: 288, aptr: 288
+W (13324) UART TOUT INT: UART received 8 bytes of data.
+I (13324) UART_TASK: Ring Buffer receive size: 3ffb6d94:(8 byte)
+I (13324) UART_TASK: 0x3ffb6d94   0f 41 02 9b 68 00 4d 05                           |.A..h.M.|
+Rb size:512	free: 512	rptr: 304	freeptr: 304	wptr: 304, aptr: 304
+W (13684) UART TOUT INT: UART received 8 bytes of data.
+I (13684) UART_TASK: Ring Buffer receive size: 3ffb6da4:(8 byte)
+I (13694) UART_TASK: 0x3ffb6da4   56 45 72 db 0e 28 89 71                           |VEr..(.q|
+Rb size:512	free: 512	rptr: 320	freeptr: 320	wptr: 320, aptr: 320
