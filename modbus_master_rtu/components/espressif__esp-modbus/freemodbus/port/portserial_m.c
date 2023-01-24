@@ -148,24 +148,6 @@ static void vMBMasterRxFlush( void )
     }
 }
 
-void vMBMasterRxFlushResp( void )
-{
-    size_t xSize = 1;
-    esp_err_t xErr = ESP_OK;
-    int64_t xStartTime = esp_timer_get_time();
-    int64_t xTimeLeft = 0;
-    while( (xTimeLeft < (1000 * MB_MASTER_TIMEOUT_MS_RESPOND)) ){
-        xTimeLeft = esp_timer_get_time() - xStartTime;
-        xErr = uart_get_buffered_data_len(xPortContext.ucUartNumber, &xSize);
-        MB_PORT_CHECK((xErr == ESP_OK), ; , "mb flush serial fail, error = 0x%x.", xErr);
-        BaseType_t xStatus = xQueueReset(xPortContext.xMbUartQueue);
-        if (xStatus) {
-            xErr = uart_flush_input(xPortContext.ucUartNumber);
-            MB_PORT_CHECK((xErr == ESP_OK), ; , "mb flush serial fail, error = 0x%x.", xErr);
-        } 
-    }
-}
-
 void vMBMasterPortSerialEnable(BOOL bRxEnable, BOOL bTxEnable)
 {
     // This function can be called from xMBRTUTransmitFSM() of different task

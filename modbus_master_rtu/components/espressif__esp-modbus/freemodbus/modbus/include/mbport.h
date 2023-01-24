@@ -167,8 +167,6 @@ BOOL            xMBMasterPortSerialGetResponse( UCHAR **ppucMBSerialFrame, USHOR
 
 BOOL            xMBMasterPortSerialSendRequest( UCHAR *pucMBSerialFrame, USHORT usSerialLength );
 
-void            vMBMasterRxFlushResp( void );
-
 #endif
 
 /* ----------------------- Timers functions ---------------------------------*/
