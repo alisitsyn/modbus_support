@@ -5,12 +5,12 @@
 #define MASTER_MAX_CIDS 2
 #define MASTER_MAX_UPDATES 3000
 #define MASTER_MAX_RETRY 5
-#define MASTER_PORT_NUM 2
-#define MASTER_SPEED 115200
+#define MASTER_PORT_NUM CONFIG_MB_UART_PORT_NUM
+#define MASTER_SPEED CONFIG_MB_UART_BAUD_RATE
 #define MASTER_TAG "MODBUS_MASTER"
-#define MB_UART_RXD_PIN 22
-#define MB_UART_TXD_PIN 23
-#define MB_UART_RTS_PIN 18
+#define MB_UART_RXD_PIN CONFIG_MB_UART_RXD
+#define MB_UART_TXD_PIN CONFIG_MB_UART_TXD
+#define MB_UART_RTS_PIN CONFIG_MB_UART_RTS
 
 #define MASTER_CHECK(a, ret_val, str, ...) \
     if (!(a)) { \
@@ -62,7 +62,7 @@ typedef struct
 
 // Enumeration of modbus slave addresses accessed by master device
 enum {
-    MB_DEVICE_ADDR1 = 1
+    MB_DEVICE_ADDR1 = 10
 };
 
 // Enumeration of all supported CIDs for device (used in parameter definition table)
@@ -75,7 +75,7 @@ enum {
 const mb_parameter_descriptor_t device_parameters[] = {
     // CID, Name, Units, Modbus addr, register type, Modbus Reg Start Addr, Modbus Reg read length, 
     // Instance offset (NA), Instance type, Instance length (bytes), Options (NA), Permissions
-    { CID_DEV_RT_DATA, STR("Device_rt_data"), STR("Data"), MB_DEVICE_ADDR1, MB_PARAM_HOLDING, RT_DATA_REG_OFFSET, RT_DATA_SZ,
+    { CID_DEV_RT_DATA, STR("Device_rt_data"), STR("Data"), MB_DEVICE_ADDR1, MB_PARAM_INPUT, RT_DATA_REG_OFFSET, RT_DATA_SZ,
                     0, PARAM_TYPE_ASCII, (RT_DATA_SZ << 1), OPTS( 0,0,0 ), PAR_PERMS_READ_WRITE_TRIGGER },
     { CID_DEV_APP_INFO, STR("Dev_app_info"), STR("Data"), MB_DEVICE_ADDR1, MB_PARAM_HOLDING, APP_DATA_REG_OFFSET, APP_DATA_REG_SZ,
                     0, PARAM_TYPE_ASCII, (APP_DATA_REG_SZ << 1), OPTS( 0,0,0 ), PAR_PERMS_READ_WRITE_TRIGGER }
@@ -171,7 +171,7 @@ static void master_read_write_func(void *arg)
     ESP_LOGI(MASTER_TAG, "Start modbus test...");
 
     // Just try to set initial parameters, do not use the result yet
-    write_modbus_parameter(CID_DEV_RT_DATA, (uint16_t*)&rt_data);
+    //write_modbus_parameter(CID_DEV_RT_DATA, (uint16_t*)&rt_data);
     write_modbus_parameter(CID_DEV_APP_INFO, (uint16_t*)&dev_data);
     
     for(uint16_t num_updates = 0; num_updates <= MASTER_MAX_UPDATES; num_updates++) {
@@ -195,6 +195,9 @@ static void master_read_write_func(void *arg)
                 vMBMasterRxFlush();
                 ESP_LOGW("DBG", "APP info retry: %d", i);
             }
+        }
+        if ((num_updates > 5) && (err == ESP_ERR_TIMEOUT)) {
+            esp_restart();
         }
     }
     ESP_LOGI(MASTER_TAG, "Modbus test is completed.");

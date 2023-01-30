@@ -1,0 +1,540 @@
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6976
+load:0x40078000,len:15492
+ho 0 tail 12 room 4
+load:0x40080400,len:3844
+0x40080400: _init at ??:?
+
+entry 0x4008064c
+I (28) boot: ESP-IDF v5.1-dev-3082-ga30779662e-dirty 2nd stage bootloader
+I (28) boot: compile time Jan 30 2023 10:35:31
+I (30) boot: chip revision: v1.0
+I (34) boot.esp32: SPI Speed      : 40MHz
+I (39) boot.esp32: SPI Mode       : DIO
+I (44) boot.esp32: SPI Flash Size : 2MB
+I (48) boot: Enabling RNG early entropy source...
+I (54) boot: Partition Table:
+I (57) boot: ## Label            Usage          Type ST Offset   Length
+I (64) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (72) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (79) boot:  2 factory          factory app      00 00 00010000 00100000
+I (87) boot: End of partition table
+I (91) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0d648h ( 54856) map
+I (119) esp_image: segment 1: paddr=0001d670 vaddr=3ffb0000 size=01e70h (  7792) load
+I (123) esp_image: segment 2: paddr=0001f4e8 vaddr=40080000 size=00b30h (  2864) load
+I (126) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=1d634h (120372) map
+I (177) esp_image: segment 4: paddr=0003d65c vaddr=40080b30 size=0ce0ch ( 52748) load
+I (206) boot: Loaded app from partition at offset 0x10000
+I (206) boot: Disabling RNG early entropy source...
+I (217) cpu_start: Pro cpu up.
+I (217) cpu_start: Starting app cpu, entry point is 0x40081250
+0x40081250: call_start_cpu1 at /home/user/esp32/esp-idf/components/esp_system/port/cpu_start.c:150
+
+I (0) cpu_start: App cpu up.
+I (232) cpu_start: Pro cpu start user code
+I (232) cpu_start: cpu freq: 160000000 Hz
+I (232) cpu_start: Application information:
+I (237) cpu_start: Project name:     simple_mb_master
+I (242) cpu_start: App version:      d03c9ee
+I (247) cpu_start: Compile time:     Jan 30 2023 11:04:14
+I (253) cpu_start: ELF file SHA256:  a9ad2780fe4b959b...
+I (259) cpu_start: ESP-IDF:          v5.1-dev-3082-ga30779662e-dirty
+I (266) cpu_start: Min chip rev:     v0.0
+I (271) cpu_start: Max chip rev:     v3.99
+I (276) cpu_start: Chip rev:         v1.0
+I (281) heap_init: Initializing. RAM available for dynamic allocation:
+I (288) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (294) heap_init: At 3FFB2B48 len 0002D4B8 (181 KiB): DRAM
+I (300) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (306) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (313) heap_init: At 4008D93C len 000126C4 (73 KiB): IRAM
+I (320) spi_flash: detected chip: generic
+I (324) spi_flash: flash io: dio
+W (328) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (341) app_start: Starting scheduler on CPU0
+I (346) app_start: Starting scheduler on CPU1
+I (346) main_task: Started on CPU0
+I (356) main_task: Calling app_main()
+I (356) uart: queue free spaces: 20
+I (356) MODBUS_MASTER: Modbus master stack initialized...
+I (366) MODBUS_MASTER: Start modbus test...
+I (376) main_task: Returned from app_main()
+I (416) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), write successful.
+W (416) SET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (416) SET: 30 00 00 00 00 00
+I (466) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (466) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (506) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (506) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (506) GET: 30 00 00 00 00 00
+I (546) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (546) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (606) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (606) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (616) GET: 30 00 00 00 00 00
+I (666) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (666) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (716) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (716) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (726) GET: 30 00 00 00 00 00
+I (766) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (766) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (826) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (836) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (836) GET: 30 00 00 00 00 00
+I (886) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (896) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (936) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (936) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (936) GET: 30 00 00 00 00 00
+I (996) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (996) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1036) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1036) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1036) GET: 30 00 00 00 00 00
+I (1086) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1086) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1136) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1136) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1136) GET: 30 00 00 00 00 00
+I (1196) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1196) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1236) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1236) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1246) GET: 30 00 00 00 00 00
+I (1296) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1296) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1326) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1326) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1336) GET: 30 00 00 00 00 00
+I (1386) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1386) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1426) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1426) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1436) GET: 30 00 00 00 00 00
+I (1486) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1486) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1546) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1546) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1556) GET: 30 00 00 00 00 00
+I (1606) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1606) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1646) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1656) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1656) GET: 30 00 00 00 00 00
+I (1716) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1716) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1756) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1756) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1756) GET: 30 00 00 00 00 00
+I (1806) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1806) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1856) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1856) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1856) GET: 30 00 00 00 00 00
+I (1906) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1906) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1966) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1966) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1976) GET: 30 00 00 00 00 00
+I (2026) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2026) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2066) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2066) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2076) GET: 30 00 00 00 00 00
+I (2126) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2126) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2186) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2186) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2196) GET: 30 00 00 00 00 00
+I (2246) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2246) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2286) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2286) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2296) GET: 30 00 00 00 00 00
+I (2346) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2346) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2376) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2386) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2386) GET: 30 00 00 00 00 00
+I (2436) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2446) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2496) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2496) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2496) GET: 30 00 00 00 00 00
+I (2556) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2556) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2606) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2606) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2606) GET: 30 00 00 00 00 00
+I (2656) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2656) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2696) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2696) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2696) GET: 30 00 00 00 00 00
+I (2736) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2736) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2786) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2786) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2796) GET: 30 00 00 00 00 00
+I (2846) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2846) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2906) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2906) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2916) GET: 30 00 00 00 00 00
+I (2966) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2966) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (3016) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (3016) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (3026) GET: 30 00 00 00 00 00
+I (3076) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (3076) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (3126) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (3126) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (3126) GET: 30 00 00 00 00 00
+I (3176) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (3176) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (3226) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (3226) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (3226) GET: 30 00 00 00 00 00
+I (3276) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (3276) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (3326) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (3326) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (3326) GET: 30 00 00 00 00 00
+E (3486) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (3486) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (3496) DBG: RT data retry: 0
+E (3646) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (3646) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (3656) DBG: RT data retry: 1
+E (3816) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (3816) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (3826) DBG: RT data retry: 2
+E (3976) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (3976) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (3986) DBG: RT data retry: 3
+E (4146) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (4146) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (4156) DBG: RT data retry: 4
+E (4276) MB_PORT_COMMON: Drop incorrect frame, receive_func(4) != send_func(3)
+E (4276) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x108) (ESP_ERR_INVALID_RESPONSE).
+E (4286) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (4286) DBG: APP info retry: 0
+I (4336) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4336) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4336) GET: 30 00 00 00 00 00
+I (4396) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4396) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4446) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4446) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4446) GET: 30 00 00 00 00 00
+I (4496) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4496) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4556) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4556) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4566) GET: 30 00 00 00 00 00
+I (4616) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4616) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4656) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4656) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4666) GET: 30 00 00 00 00 00
+I (4706) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4706) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4756) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4756) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4766) GET: 30 00 00 00 00 00
+I (4806) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4806) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4856) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4856) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4866) GET: 30 00 00 00 00 00
+I (4916) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (4916) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (4966) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (4976) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (4976) GET: 30 00 00 00 00 00
+I (5026) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5026) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5076) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5076) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5076) GET: 30 00 00 00 00 00
+I (5126) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5126) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5176) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5176) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5176) GET: 30 00 00 00 00 00
+I (5236) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5236) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5286) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5286) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5296) GET: 30 00 00 00 00 00
+I (5346) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5346) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5396) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5396) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5406) GET: 30 00 00 00 00 00
+I (5456) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5456) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5506) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5516) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5516) GET: 30 00 00 00 00 00
+I (5576) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5576) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (5626) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (5626) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (5626) GET: 30 00 00 00 00 00
+I (5686) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (5686) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+E (5836) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (5836) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (5846) DBG: APP info retry: 0
+E (6006) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (6006) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (6016) DBG: APP info retry: 1
+E (6166) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (6166) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (6176) DBG: APP info retry: 2
+E (6336) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (6336) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (6336) DBG: APP info retry: 3
+I (6476) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (6476) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (6486) GET: 30 00 00 00 00 00
+I (6526) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (6526) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (6586) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (6586) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (6596) GET: 30 00 00 00 00 00
+I (6646) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (6646) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (6696) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (6696) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (6706) GET: 30 00 00 00 00 00
+I (6756) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (6756) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (6796) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (6796) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (6806) GET: 30 00 00 00 00 00
+I (6856) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (6856) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (6916) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (6916) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (6926) GET: 30 00 00 00 00 00
+I (6976) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (6976) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7036) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7036) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7036) GET: 30 00 00 00 00 00
+I (7096) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7096) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7146) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7146) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7146) GET: 30 00 00 00 00 00
+I (7196) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7196) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7236) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7236) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7236) GET: 30 00 00 00 00 00
+I (7276) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7276) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7316) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7316) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7316) GET: 30 00 00 00 00 00
+I (7356) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7356) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7416) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7416) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7426) GET: 30 00 00 00 00 00
+I (7476) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7476) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7516) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7516) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7526) GET: 30 00 00 00 00 00
+I (7576) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7576) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7616) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7616) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7626) GET: 30 00 00 00 00 00
+I (7656) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7656) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7716) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7716) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7726) GET: 30 00 00 00 00 00
+I (7776) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7776) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (7826) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (7836) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (7836) GET: 30 00 00 00 00 00
+I (7886) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (7896) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+E (8046) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (8046) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (8056) DBG: APP info retry: 0
+E (8206) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (8216) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (8216) DBG: APP info retry: 1
+E (8376) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (8376) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (8386) DBG: APP info retry: 2
+E (8536) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (8536) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (8546) DBG: APP info retry: 3
+E (8706) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (8706) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), parameter read fail.
+W (8716) DBG: APP info retry: 4
+ets Jun  8 2016 00:22:57
+
+rst:0xc (SW_CPU_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6976
+load:0x40078000,len:15492
+ho 0 tail 12 room 4
+load:0x40080400,len:3844
+0x40080400: _init at ??:?
+
+entry 0x4008064c
+I (29) boot: ESP-IDF v5.1-dev-3082-ga30779662e-dirty 2nd stage bootloader
+I (29) boot: compile time Jan 30 2023 10:35:31
+I (31) boot: chip revision: v1.0
+I (35) boot.esp32: SPI Speed      : 40MHz
+I (40) boot.esp32: SPI Mode       : DIO
+I (44) boot.esp32: SPI Flash Size : 2MB
+I (49) boot: Enabling RNG early entropy source...
+I (54) boot: Partition Table:
+I (58) boot: ## Label            Usage          Type ST Offset   Length
+I (65) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (73) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (80) boot:  2 factory          factory app      00 00 00010000 00100000
+I (88) boot: End of partition table
+I (92) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0d648h ( 54856) map
+I (120) esp_image: segment 1: paddr=0001d670 vaddr=3ffb0000 size=01e70h (  7792) load
+I (123) esp_image: segment 2: paddr=0001f4e8 vaddr=40080000 size=00b30h (  2864) load
+I (127) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=1d634h (120372) map
+I (178) esp_image: segment 4: paddr=0003d65c vaddr=40080b30 size=0ce0ch ( 52748) load
+I (207) boot: Loaded app from partition at offset 0x10000
+I (207) boot: Disabling RNG early entropy source...
+I (218) cpu_start: Pro cpu up.
+I (218) cpu_start: Starting app cpu, entry point is 0x40081250
+0x40081250: call_start_cpu1 at /home/user/esp32/esp-idf/components/esp_system/port/cpu_start.c:150
+
+I (204) cpu_start: App cpu up.
+I (233) cpu_start: Pro cpu start user code
+I (233) cpu_start: cpu freq: 160000000 Hz
+I (233) cpu_start: Application information:
+I (237) cpu_start: Project name:     simple_mb_master
+I (243) cpu_start: App version:      d03c9ee
+I (248) cpu_start: Compile time:     Jan 30 2023 11:04:14
+I (254) cpu_start: ELF file SHA256:  a9ad2780fe4b959b...
+I (260) cpu_start: ESP-IDF:          v5.1-dev-3082-ga30779662e-dirty
+I (267) cpu_start: Min chip rev:     v0.0
+I (272) cpu_start: Max chip rev:     v3.99
+I (277) cpu_start: Chip rev:         v1.0
+I (282) heap_init: Initializing. RAM available for dynamic allocation:
+I (289) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (295) heap_init: At 3FFB2B48 len 0002D4B8 (181 KiB): DRAM
+I (301) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (307) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (314) heap_init: At 4008D93C len 000126C4 (73 KiB): IRAM
+I (321) spi_flash: detected chip: generic
+I (325) spi_flash: flash io: dio
+W (329) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (342) app_start: Starting scheduler on CPU0
+I (347) app_start: Starting scheduler on CPU1
+I (347) main_task: Started on CPU0
+I (357) main_task: Calling app_main()
+I (357) uart: queue free spaces: 20
+I (357) MODBUS_MASTER: Modbus master stack initialized...
+I (367) MODBUS_MASTER: Start modbus test...
+I (377) main_task: Returned from app_main()
+E (527) MB_CONTROLLER_MASTER: mbc_master_set_parameter(134): Master set parameter failure, error=(0x107) (ESP_ERR_TIMEOUT).
+E (527) MODBUS_MASTER: Characteristic #1 (Dev_app_info) write fail, err = 0x107 (ESP_ERR_TIMEOUT).
+E (567) MB_PORT_COMMON: Drop incorrect frame, receive_func(3) != send_func(4)
+E (567) MB_CONTROLLER_MASTER: mbc_master_get_parameter(73): Master get parameter failure, error=(0x108) (ESP_ERR_INVALID_RESPONSE).
+E (577) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), parameter read fail.
+W (587) DBG: RT data retry: 0
+I (627) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (627) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (687) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (687) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (697) GET: 30 00 00 00 00 00
+I (747) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (747) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (787) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (787) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (797) GET: 30 00 00 00 00 00
+I (837) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (837) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (887) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (887) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (897) GET: 30 00 00 00 00 00
+I (927) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (927) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (987) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (997) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (997) GET: 30 00 00 00 00 00
+I (1047) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1057) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1107) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1107) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1107) GET: 30 00 00 00 00 00
+I (1167) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1167) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1217) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1217) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1217) GET: 30 00 00 00 00 00
+I (1277) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1277) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1327) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1327) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1327) GET: 30 00 00 00 00 00
+I (1387) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1387) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1427) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1427) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1437) GET: 30 00 00 00 00 00
+I (1487) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1487) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1517) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1517) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1527) GET: 30 00 00 00 00 00
+I (1577) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1577) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1617) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1617) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1627) GET: 30 00 00 00 00 00
+I (1677) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1677) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1737) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1737) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1747) GET: 30 00 00 00 00 00
+I (1787) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1787) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1827) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1837) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1837) GET: 30 00 00 00 00 00
+I (1867) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1877) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (1937) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (1937) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (1937) GET: 30 00 00 00 00 00
+I (1997) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (1997) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2037) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2037) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2037) GET: 30 00 00 00 00 00
+I (2097) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2097) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2137) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2137) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2137) GET: 30 00 00 00 00 00
+I (2177) MODBUS_MASTER: Characteristic #0 Device_rt_data (Data), REG(0, 7), parameter read successful.
+W (2177) GET: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+I (2227) MODBUS_MASTER: Characteristic #1 Dev_app_info (Data), REG(100, 11), parameter read successful.
+W (2227) GET: 30 00 32 00 4d 00 42 00 31 00 34 00 34 00 53 00
+W (2237) GET: 30 00 00 00 00 00
