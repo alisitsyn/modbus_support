@@ -178,6 +178,7 @@ BOOL xMBMasterPortSerialGetResponse( UCHAR **ppucMBSerialFrame, USHORT * usSeria
         // Read frame data from the ringbuffer of receiver
         usCount = uart_read_bytes(xPortContext.ucUartNumber, (uint8_t*)*ppucMBSerialFrame,
                                     xPortContext.usRecvLength, pdMS_TO_TICKS(xMBSerialPortMasterGetRespTimeLeft(0)));
+        vMBMasterPortTimersDisable();
         // The buffer is transferred into Modbus stack and is not needed here any more
         uart_flush_input(xPortContext.ucUartNumber);
         ESP_LOGD(TAG, "Received data: %d(bytes in buffer)\n", (uint32_t)usCount);

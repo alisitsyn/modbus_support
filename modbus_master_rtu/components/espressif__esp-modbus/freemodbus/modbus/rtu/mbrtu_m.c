@@ -190,8 +190,6 @@ eMBMasterRTUReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame, USHORT * pusLengt
 
         /* Return the start of the Modbus PDU to the caller. */
         *pucFrame = ( UCHAR * ) & pucMBRTUFrame[MB_SER_PDU_PDU_OFF];
-        
-        eRcvState = STATE_M_RX_IDLE;
     }
     else
     {
@@ -199,6 +197,8 @@ eMBMasterRTUReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame, USHORT * pusLengt
     }
 
     EXIT_CRITICAL_SECTION(  );
+    eRcvState = STATE_M_RX_IDLE;
+    
     return eStatus;
 }
 

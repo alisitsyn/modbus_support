@@ -178,6 +178,7 @@ esp_err_t mbc_master_start(void)
     return ESP_OK;
 }
 
+__attribute__ ((weak))
 eMBErrorCode eMBMasterRegDiscreteCB(UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNDiscrete)
 {
@@ -192,6 +193,7 @@ eMBErrorCode eMBMasterRegDiscreteCB(UCHAR * pucRegBuffer, USHORT usAddress,
     return error;
 }
 
+__attribute__ ((weak))
 eMBErrorCode eMBMasterRegCoilsCB(UCHAR* pucRegBuffer, USHORT usAddress,
         USHORT usNCoils, eMBRegisterMode eMode)
 {
@@ -207,6 +209,7 @@ eMBErrorCode eMBMasterRegCoilsCB(UCHAR* pucRegBuffer, USHORT usAddress,
     return error;
 }
 
+__attribute__ ((weak))
 eMBErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddress,
         USHORT usNRegs, eMBRegisterMode eMode)
 {
@@ -222,6 +225,7 @@ eMBErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddress,
     return error;
 }
 
+__attribute__ ((weak))
 eMBErrorCode eMBMasterRegInputCB(UCHAR * pucRegBuffer, USHORT usAddress,
                                 USHORT usNRegs)
 {
