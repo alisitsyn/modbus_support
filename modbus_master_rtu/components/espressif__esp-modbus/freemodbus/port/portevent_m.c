@@ -63,6 +63,15 @@
                                             EV_MASTER_ERROR_RECEIVE_DATA | \
                                             EV_MASTER_ERROR_EXECUTE_FUNCTION )
 
+// Event bit mask for eMBMasterWaitRequestFinish()
+#define MB_EVENT_FLUSH_MASK   (EventBits_t)( EV_MASTER_FRAME_RECEIVED | \
+                                            EV_MASTER_EXECUTE | \
+                                            EV_MASTER_ERROR_PROCESS | \
+                                            EV_MASTER_PROCESS_SUCCESS | \
+                                            EV_MASTER_ERROR_RESPOND_TIMEOUT | \
+                                            EV_MASTER_ERROR_RECEIVE_DATA | \
+                                            EV_MASTER_ERROR_EXECUTE_FUNCTION )
+
 #define MB_EVENT_RESOURCE   (EventBits_t)( 0x0080 )
 
 /* ----------------------- Variables ----------------------------------------*/
@@ -309,6 +318,11 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish( void ) {
         eErrStatus = MB_MRE_TIMEDOUT;
     }
     return eErrStatus;
+}
+
+void vMBMasterFlushEvents( void )
+{
+    (void)xEventGroupWaitBits( xEventGroupMasterHdl, MB_EVENT_FLUSH_MASK, pdTRUE, pdFALSE, 0);
 }
 
 void vMBMasterPortEventClose(void)

@@ -211,6 +211,8 @@ UCHAR ucMBPortGetMode(void);
 
 BOOL xMBPortSerialWaitEvent(QueueHandle_t xMbUartQueue, uart_event_t *pxEvent, ULONG xTimeout);
 
+void vMBMasterFlushEvents( void );
+
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif /* __cplusplus */
