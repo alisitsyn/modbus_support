@@ -106,8 +106,9 @@ static void* vxMBTCPPortRespQueueRecv(QueueHandle_t xRespQueueHandle)
     BaseType_t xStatus = xQueueReceive(xRespQueueHandle,
                                         (void*)&pvResp,
                                         pdMS_TO_TICKS(MB_TCP_RESP_TIMEOUT_MS));
-    MB_PORT_CHECK((xStatus == pdTRUE), NULL, "Could not get respond confirmation.");
-    MB_PORT_CHECK((pvResp), NULL, "Incorrect response processing.");
+    if (xStatus != pdTRUE) {
+        ESP_LOGD(TAG, "Could not get respond confirmation.");
+    }
     return pvResp;
 }
 
@@ -205,6 +206,10 @@ static int xMBTCPPortAcceptConnection(int xListenSockId, char** pcIPAddr)
             inet6_ntoa_r(((struct sockaddr_in6 *)&xSrcAddr)->sin6_addr, cAddrStr, sizeof(cAddrStr) - 1);
         }
 #endif
+        else {
+            // Make sure ss_family is valid
+            abort();
+        }
         ESP_LOGI(TAG, "Socket (#%d), accept client connection from address: %s", xSockId, cAddrStr);
         pcStr = calloc(1, strlen(cAddrStr) + 1);
         if (pcStr && pcIPAddr) {
@@ -561,7 +566,7 @@ static void vMBTCPPortServerTask(void *pvParameters)
                                                                             pxClientInfo->xSockId, pxClientInfo->pcIpAddr, xErr);
                                         break;
                                 }
-                                
+
                                 if (xShutdownSemaphore) {
                                     xSemaphoreGive(xShutdownSemaphore);
                                     vTaskDelete(NULL);
@@ -595,7 +600,7 @@ static void vMBTCPPortServerTask(void *pvParameters)
                                 // Wait while response is not processed by stack by timeout
                                 UCHAR* pucSentBuffer = vxMBTCPPortRespQueueRecv(xConfig.xRespQueueHandle);
                                 if (pucSentBuffer == NULL) {
-                                    ESP_LOGE(TAG, "Response time exceeds configured %d [ms], ignore packet.",
+                                    ESP_LOGD(TAG, "Response is ignored, time exceeds configured %d [ms].",
                                                                         MB_TCP_RESP_TIMEOUT_MS);
                                 } else  {
                                     USHORT usSentTid = MB_TCP_GET_FIELD(pucSentBuffer, MB_TCP_TID);

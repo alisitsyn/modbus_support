@@ -298,7 +298,7 @@ static int xMBTCPPortMasterGetBuf(MbSlaveInfo_t* pxInfo, UCHAR* pucDstBuf, USHOR
     // Receive data from connected client
     while (usBytesLeft > 0) {
         xMBTCPPortMasterCheckShutdown();
-        xLength = recv(pxInfo->xSockId, pucBuf, usBytesLeft, 0); 
+        xLength = recv(pxInfo->xSockId, pucBuf, usBytesLeft, 0);
         if (xLength < 0) {
             if (errno == EAGAIN) {
                 // Read timeout occurred, check the timeout and return
@@ -334,7 +334,7 @@ static int vMBTCPPortMasterReadPacket(MbSlaveInfo_t* pxInfo)
     if (pxInfo) {
         MB_PORT_CHECK((pxInfo->xSockId > 0), -1, "Try to read incorrect socket = #%d.", pxInfo->xSockId);
         // Read packet header
-        xRet = xMBTCPPortMasterGetBuf(pxInfo, &pxInfo->pucRcvBuf[0], 
+        xRet = xMBTCPPortMasterGetBuf(pxInfo, &pxInfo->pucRcvBuf[0],
                                         MB_TCP_UID, xMBTCPPortMasterGetRespTimeLeft(pxInfo));
         if (xRet < 0) {
             pxInfo->xRcvErr = xRet;
@@ -348,7 +348,7 @@ static int vMBTCPPortMasterReadPacket(MbSlaveInfo_t* pxInfo)
         // If we have received the MBAP header we can analyze it and calculate
         // the number of bytes left to complete the current request.
         xLength = (int)MB_TCP_GET_FIELD(pxInfo->pucRcvBuf, MB_TCP_LEN);
-        xRet = xMBTCPPortMasterGetBuf(pxInfo, &pxInfo->pucRcvBuf[MB_TCP_UID], 
+        xRet = xMBTCPPortMasterGetBuf(pxInfo, &pxInfo->pucRcvBuf[MB_TCP_UID],
                                         xLength, xMBTCPPortMasterGetRespTimeLeft(pxInfo));
         if (xRet < 0) {
             pxInfo->xRcvErr = xRet;
@@ -682,6 +682,8 @@ static void vMBTCPPortMasterTask(void *pvParameters)
             ESP_LOGE(TAG, "Fail to register slave IP.");
         } else {
             if (xSlaveAddrInfo.pcIPAddr == NULL && xMbPortConfig.usMbSlaveInfoCount && xSlaveAddrInfo.usIndex == 0xFF) {
+                // Init start timeout that allows to initialize the main FSM
+                xMBMasterPortEventPost(EV_MASTER_READY);
                 break;
             }
             if (xMbPortConfig.usMbSlaveInfoCount > MB_TCP_PORT_MAX_CONN) {
@@ -987,6 +989,7 @@ xMBMasterTCPPortSendResponse( UCHAR * pucMBTCPFrame, USHORT usTCPLength )
             // Apply TID field to the frame before send
             pucMBTCPFrame[MB_TCP_TID] = (UCHAR)(pxInfo->usTidCnt >> 8U);
             pucMBTCPFrame[MB_TCP_TID + 1] = (UCHAR)(pxInfo->usTidCnt & 0xFF);
+
             int xRes = xMBMasterTCPPortWritePoll(pxInfo, pucMBTCPFrame, usTCPLength, MB_TCP_SEND_TIMEOUT_MS);
             if (xRes < 0) {
                 ESP_LOGE(TAG, MB_SLAVE_FMT(", send data failure, err(errno) = %d(%d)."),
@@ -1020,10 +1023,12 @@ BOOL MB_PORT_ISR_ATTR
 xMBMasterTCPTimerExpired(void)
 {
     BOOL xNeedPoll = FALSE;
+    eMBMasterTimerMode eTimerMode = xMBMasterGetCurTimerMode();
 
     vMBMasterPortTimersDisable();
+
     // If timer mode is respond timeout, the master event then turns EV_MASTER_EXECUTE status.
-    if (xMBMasterGetCurTimerMode() == MB_TMODE_RESPOND_TIMEOUT) {
+    if (eTimerMode == MB_TMODE_RESPOND_TIMEOUT) {
         vMBMasterSetErrorType(EV_ERROR_RESPOND_TIMEOUT);
         xNeedPoll = xMBMasterPortEventPost(EV_MASTER_ERROR_PROCESS);
     }

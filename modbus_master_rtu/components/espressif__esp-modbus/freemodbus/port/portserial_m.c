@@ -133,7 +133,7 @@ static BOOL vMBMasterRxSemaIsBusy( void )
     return xStatus;
 }
 
-static void vMBMasterRxFlush( void )
+void vMBMasterRxFlush( void )
 {
     size_t xSize = 1;
     esp_err_t xErr = ESP_OK;
