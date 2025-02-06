@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2021 - 2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
 @file
-Wrapper class for ESP_Modbus API to access Modbus slaves over RS232/485 (via RTU protocol).
+Wrapper class for ESP_Modbus API to access Modbus slaves over RS232/485 (via RTU or ASCII protocol).
 
 @defgroup setup ModbusMaster Object Instantiation/Initialization
 @defgroup buffer ModbusMaster Buffer Management
@@ -18,22 +18,6 @@ Wrapper class for ESP_Modbus API to access Modbus slaves over RS232/485 (via RTU
 #ifndef ModbusMaster_h
 #define ModbusMaster_h
 
-#define MASTER_CHECK(a, ret_val, str, ...) \
-    if (!(a)) { \
-        ESP_LOGE(TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        return ret_val; \
-    }
-    
-// Defines for register areas
-#define MODBUS_COIL_START 1
-#define MODBUS_COIL_END 10000
-#define MODBUS_DISC_INPUT_START MODBUS_COIL_START + MODBUS_COIL_END
-#define MODBUS_DISC_INPUT_END 20000
-#define MODBUS_INPUT_START 30001
-#define MODBUS_INPUT_END 39999
-#define MODBUS_HOLD_START 40001
-#define MODBUS_HOLD_END 49999
-
 /**
 @def __MODBUSMASTER_DEBUG__ (0)
 Set to 1 to enable debugging features within class:
@@ -44,25 +28,33 @@ Set to 1 to enable debugging features within class:
 /* _____STANDARD INCLUDES____________________________________________________ */
 #include <stdint.h>
 #include "esp_log.h"
-
-#include "mbcontroller.h"   // include file for common Modbus types
-
+#include "esp_err.h"
 
 /* _____UTILITY MACROS_______________________________________________________ */
+// Defines for register areas
+#define MODBUS_COIL_START 1
+#define MODBUS_COIL_END 10000
+#define MODBUS_DISC_INPUT_START MODBUS_COIL_START + MODBUS_COIL_END
+#define MODBUS_DISC_INPUT_END 20000
+#define MODBUS_INPUT_START 30001
+#define MODBUS_INPUT_END 39999
+#define MODBUS_HOLD_START 40001
+#define MODBUS_HOLD_END 49999
 
 
 /* _____PROJECT INCLUDES_____________________________________________________ */
-
+#include "mbcontroller.h"   // include file for common Modbus types
 
 /* _____CLASS DEFINITIONS____________________________________________________ */
 
 class ModbusMaster
 {
   public:
-    ModbusMaster();
-    ~ModbusMaster();
+    ModbusMaster(mb_communication_info_t *);
+    virtual ~ModbusMaster();
     
-    esp_err_t begin(uint8_t, mb_communication_info_t*);
+    esp_err_t begin(uint8_t);
+    esp_err_t end();
 
     esp_err_t  readCoils(uint16_t, uint16_t, void*);
     esp_err_t  readDiscreteInputs(uint16_t, uint16_t, void*);
@@ -71,7 +63,6 @@ class ModbusMaster
     esp_err_t  writeSingleCoil(uint16_t, uint8_t);
     esp_err_t  writeSingleRegister(uint16_t, uint16_t);
     esp_err_t  writeMultipleCoils(uint16_t, uint16_t, void*);
-    //esp_err_t  writeMultipleCoils();
     esp_err_t  writeMultipleRegisters(uint16_t, uint16_t, void*);
     //esp_err_t  writeMultipleRegisters();
     //esp_err_t  maskWriteRegister(uint16_t, uint16_t, uint16_t);
@@ -79,9 +70,10 @@ class ModbusMaster
     esp_err_t  readWriteMultipleRegisters(uint16_t, uint16_t);
 
   private:
-    uint8_t _u8MBSlave;                                         ///< Modbus slave (1..255) initialized in begin()
+    uint8_t _u8MBSlave;                                         ///< Modbus current slave UID (1..255) initialized in begin()
     mb_communication_info_t _comm_opts;                         ///< Modbus communication options
     mb_param_request_t _param_request;                          ///< Modbus request structure
+    void* _pmaster_handle = NULL;                               ///< Modbus master handle
     
     // Modbus function codes for bit access
     static const uint8_t ku8MBReadCoils                  = 0x01; ///< Modbus function 0x01 Read Coils

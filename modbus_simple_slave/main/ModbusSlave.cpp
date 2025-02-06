@@ -13,7 +13,7 @@ The wrapper for ESP_Modbus library communicating with Modbus slaves over RS232/4
 #include "ModbusSlave.h"
 
 /* _____GLOBAL VARIABLES_____________________________________________________ */
-
+static const char *TAG = "ModbusSlave";
 
 /* _____PUBLIC FUNCTIONS_____________________________________________________ */
 /**
@@ -23,9 +23,26 @@ Creates class object; initialize it using ModbusSlave::begin().
 
 @ingroup setup
 */
-ModbusSlave::ModbusSlave(void)
+ModbusSlave::ModbusSlave(mb_communication_info_t* pxCommOpts)
 {
-    // Do not perform initialization in constructor.
+    void* slave_handle = NULL;
+    MB_RETURN_ON_FALSE((pxCommOpts != NULL), ; , TAG,
+                            "mb controller initialization fail.");
+    _comm_opts = *pxCommOpts;
+    _pslave_handle = NULL;
+    esp_err_t err = mbc_slave_create_serial(&_comm_opts, &slave_handle);
+    MB_RETURN_ON_FALSE((slave_handle != NULL), ; , TAG,
+                        "mb controller initialization fail.");
+    MB_RETURN_ON_FALSE((err == ESP_OK), ; , TAG, 
+                        "mb controller initialization fail, returns(0x%x).", (int)err);
+    ESP_LOGW("TEST", "Inst pointer constructor: %p", slave_handle);
+    _pslave_handle = slave_handle;
+}
+
+void *ModbusSlave::getInstance(void)
+{
+    //assert(_pslave_handle);
+    return _pslave_handle;
 }
 
 /**
@@ -34,29 +51,17 @@ Initialize class object.
 Assigns the Modbus slave ID and serial communication parameters.
 Call once class has been instantiated.
 
-@param pxCommOpts - pointer to communication options structure
 @ingroup setup
 */
-esp_err_t ModbusSlave::begin(mb_communication_info_t* pxCommOpts)
+esp_err_t ModbusSlave::begin()
 {
-  _u8MBSlave = pxCommOpts->slave_addr;
-  _comm_opts = *pxCommOpts;
+  _u8MBSlave = _comm_opts.ser_opts.uid;
   esp_err_t err = ESP_FAIL;
 
-  // Initialization of Modbus controller
-  err = mbc_slave_init(MB_PORT_SERIAL_SLAVE, &_slave_handler);
-  SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
-                            "mb controller init fail, returns(0x%x).",
-                            (uint32_t)err);
-  // Setup communication parameters and start stack
-  err = mbc_slave_setup((void*)&_comm_opts);
-  SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
-                            "mb controller setup fail, returns(0x%x).",
-                            (uint32_t)err);
-  err = mbc_slave_start();
-  SLAVE_CHECK((err == ESP_OK), ESP_ERR_INVALID_STATE,
-                            "mb controller start fail, returns(0x%x).",
-                            (uint32_t)err);
+  // Starts communication object and stack
+  err = mbc_slave_start(_pslave_handle);
+  MB_RETURN_ON_FALSE((err == ESP_OK), ESP_ERR_INVALID_STATE, TAG,
+                            "mb controller start fail, returns(0x%x).", (int)err);
   return err;
 }
 
@@ -79,8 +84,9 @@ esp_err_t ModbusSlave::addRegisterBank(uint16_t regAddress, void* instanceAddres
     reg_area.address = (void*)instanceAddress; // Set pointer to storage instance
     // Set the size of register storage instance
     reg_area.size = (size_t)(regAreaSize << 1);
+    reg_area.access = MB_ACCESS_RW;
 
-    return mbc_slave_set_descriptor(reg_area);
+    return mbc_slave_set_descriptor(_pslave_handle, reg_area);
 }
 
 /**
@@ -91,10 +97,11 @@ Waits the event defined in the event mask and returns actual event (register rea
 */
 mb_event_group_t ModbusSlave::run(mb_event_group_t EventMask)
 {    
-    mb_event_group_t event = mbc_slave_check_event(EventMask);
-    
-    ESP_ERROR_CHECK(mbc_slave_get_param_info(&_reg_info, MODBUS_PAR_INFO_GET_TOUT));
-    return event;
+    MB_RETURN_ON_FALSE((_pslave_handle != NULL), MB_EVENT_NO_EVENTS, TAG,
+                            "mb controller initialization fail.");
+    (void)mbc_slave_check_event(_pslave_handle, EventMask);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(mbc_slave_get_param_info(_pslave_handle, &_reg_info, MODBUS_PAR_INFO_GET_TOUT));
+    return _reg_info.type;
 }
 
 /**
@@ -102,7 +109,7 @@ Modbus get information about accessed Modbus register
 The register access information is delivered in method run()
 */
 mb_param_info_t ModbusSlave::getRegisterInfo()
-{    
+{
     return _reg_info;
 }
 
@@ -118,21 +125,27 @@ bool ModbusSlave::isBankAccessed(uint16_t regAddress, uint16_t regAreaSize)
     
     getRegType(regAddress, &reg_type, &base_off);
     mb_event_group_t reg_mask = getRegEventMask(reg_type);
-    
     uint16_t offset = regAddress - base_off;
     
     //ESP_LOGI("TEST", "test mask %d", (reg_mask & par_info.type));
     bool result = ((reg_mask & par_info.type) && 
                     (offset >= par_info.mb_offset) && 
                     ((offset + regAreaSize) >= (par_info.mb_offset + par_info.size))) ? true : false;
-    //ESP_LOGI("TEST", "Bank accessed type %d, offset %d, par_info.mb_off %d, par_info.size %d, reg_mask %d, par_info.type %d, result=%d", 
-                        reg_type, offset, par_info.mb_offset, par_info.size, reg_mask, par_info.type, (uint8_t)result);
+    ESP_LOGD("TEST", "Bank accessed type %d, offset %d, par_info.mb_off %d, par_info.size %d, reg_mask %x, par_info.type %x, result=%d", 
+                       reg_type, offset, par_info.mb_offset, par_info.size, (int)reg_mask, (int)par_info.type, (int)result);
     return result;
 }
 
 ModbusSlave::~ModbusSlave(void)
 {
-    ESP_ERROR_CHECK(mbc_slave_destroy());
+    MB_RETURN_ON_FALSE((_pslave_handle != NULL), ; , TAG,
+                            "mb controller initialization fail.");
+    esp_err_t err = mbc_slave_stop(_pslave_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "mb controller stop fail or already stopped, returns(0x%x).", (int)err);
+    }
+    ESP_ERROR_CHECK(mbc_slave_delete(_pslave_handle));
+    _pslave_handle = NULL;
 }
 
 /* _____PRIVATE FUNCTIONS____________________________________________________ */

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2016-2021 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2021 - 2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,55 +9,73 @@
 The wrapper for ESP_Modbus library communicating with Modbus slaves over RS232/485 (via RTU protocol).
 */
 
-#define TAG "MB_MASTER"
-
 /* _____PROJECT INCLUDES_____________________________________________________ */
 #include "ModbusMaster.h"
 
 /* _____GLOBAL VARIABLES_____________________________________________________ */
-
+static const char *TAG = "ModbusMaster";
 
 /* _____PUBLIC FUNCTIONS_____________________________________________________ */
 /**
 Constructor.
 
 Creates class object; initialize it using ModbusMaster::begin().
+@param pCommOpts a pointer to communication options
 
 @ingroup setup
 */
-ModbusMaster::ModbusMaster(void)
+ModbusMaster::ModbusMaster(mb_communication_info_t *pCommOpts)
 {
-
+    void* master_handle = NULL;
+    MB_RETURN_ON_FALSE((pCommOpts != NULL), ; , TAG,
+                            "mb controller initialization fail.");
+    _comm_opts = *pCommOpts;
+    _pmaster_handle = NULL;
+    esp_err_t err = mbc_master_create_serial(&_comm_opts, &master_handle);
+    MB_RETURN_ON_FALSE((master_handle != NULL), ; , TAG,
+                        "mb controller initialization fail.");
+    MB_RETURN_ON_FALSE((err == ESP_OK), ; , TAG, 
+                        "mb controller initialization fail, returns(0x%x).", (int)err);
+    _pmaster_handle = master_handle;
 }
 
 /**
-Initialize class object.
+Initialize Master class object to interract with defined slave UID.
+
+Assigns the Modbus slave ID.
+Call once class has been instantiated, typically within start of communication.
+
+@param slave Modbus slave ID (1..247)
+@ingroup setup
+*/
+esp_err_t ModbusMaster::begin(uint8_t slave)
+{
+    _u8MBSlave = slave;
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+    esp_err_t err = mbc_master_start(_pmaster_handle);
+    MB_RETURN_ON_FALSE((err == ESP_OK), err , TAG,
+                        "mb controller start fail, returns(0x%x).", (int)err);
+    ESP_LOGI(TAG, "Modbus master stack initialized...");
+    return err;
+}
+
+/**
+Stops Modbus Master object
 
 Assigns the Modbus slave ID and serial port.
 Call once class has been instantiated, typically within setup().
 
-@param slave Modbus slave ID (1..247)
-@param pxCommOpts - pointer to communication options structure
 @ingroup setup
 */
-esp_err_t ModbusMaster::begin(uint8_t slave, mb_communication_info_t* commOpts)
+esp_err_t ModbusMaster::end()
 {
-    _u8MBSlave = slave;
-    _comm_opts = *commOpts;
-    void* master_handler = NULL;
-
-    esp_err_t err = mbc_master_init(MB_PORT_SERIAL_MASTER, &master_handler);
-
-    MASTER_CHECK((master_handler != NULL), ESP_ERR_INVALID_ARG , "mb controller initialization fail.");
-    MASTER_CHECK((err == ESP_OK), err , "mb controller initialization fail, returns(0x%x).", (uint32_t)err);
-
-    err = mbc_master_setup((void*)&_comm_opts);
-    MASTER_CHECK((err == ESP_OK), err , "mb controller setup fail, returns(0x%x).", (uint32_t)err);
-
-    err = mbc_master_start();
-    MASTER_CHECK((err == ESP_OK), err , "mb controller start fail, returns(0x%x).", (uint32_t)err);
-
-    ESP_LOGI(TAG, "Modbus master stack initialized...");
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+    esp_err_t err = mbc_master_stop(_pmaster_handle);
+    MB_RETURN_ON_FALSE((err == ESP_OK), err , TAG,
+                        "mb controller stop fail, returns(0x%x).", (int)err);
+    _u8MBSlave = 0;
     return err;
 }
 
@@ -89,15 +107,18 @@ esp_err_t ModbusMaster::readCoils(uint16_t u16ReadAddress, uint16_t u16BitQty, v
 {
     mb_param_type_t reg_type;
     uint16_t reg_off = 0;
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
 
     getRegType(u16ReadAddress, &reg_type, &reg_off);
-    MASTER_CHECK((reg_type == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , "Incorrect address.");
+    MB_RETURN_ON_FALSE((reg_type == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , TAG, 
+                            "Incorrect coil address.");
 
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBReadCoils;
     _param_request.reg_start = (u16ReadAddress - reg_off);
     _param_request.reg_size = u16BitQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 /**
@@ -129,14 +150,18 @@ esp_err_t ModbusMaster::readDiscreteInputs(uint16_t u16ReadAddress, uint16_t u16
     mb_param_type_t reg_type;
     uint16_t reg_off = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16ReadAddress, &reg_type, &reg_off);
-    MASTER_CHECK((reg_type == MB_PARAM_DISCRETE), ESP_ERR_INVALID_ARG , "Incorrect address.");
+    MB_RETURN_ON_FALSE((reg_type == MB_PARAM_DISCRETE), ESP_ERR_INVALID_ARG , TAG, 
+                        "Incorrect discrete address.");
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBReadDiscreteInputs;
     _param_request.reg_start = (u16ReadAddress - reg_off);
     _param_request.reg_size = u16BitQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 
@@ -162,15 +187,18 @@ esp_err_t ModbusMaster::readHoldingRegisters(uint16_t u16ReadAddress, uint16_t u
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16ReadAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , 
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , TAG,
                         "Incorrect register address %d.", u16ReadAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBReadHoldingRegisters;
     _param_request.reg_start = (u16ReadAddress - u16Regbase);
     _param_request.reg_size = u16ReadQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 
@@ -196,15 +224,18 @@ esp_err_t ModbusMaster::readInputRegisters(uint16_t u16ReadAddress, uint8_t u16R
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16ReadAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_INPUT), ESP_ERR_INVALID_ARG , 
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_INPUT), ESP_ERR_INVALID_ARG , TAG,
                         "Incorrect register address %d.", u16ReadAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBReadInputRegisters;
     _param_request.reg_start = (u16ReadAddress - u16Regbase);
     _param_request.reg_size = u16ReadQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 
@@ -227,16 +258,19 @@ esp_err_t ModbusMaster::writeSingleCoil(uint16_t u16WriteAddress, uint8_t u8Stat
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16WriteAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , 
-                    "Incorrect register address %d.", u16WriteAddress);
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , TAG,
+                    "Incorrect coil address %d.", u16WriteAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBWriteSingleCoil;
     _param_request.reg_start = (u16WriteAddress - u16Regbase);
     _param_request.reg_size = 1;
     uint16_t u16StateTemp = (u8State ? 0xFF00 : 0x0000);
-    return mbc_master_send_request(&_param_request, &u16StateTemp);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, &u16StateTemp);
 }
 
 
@@ -258,16 +292,19 @@ esp_err_t ModbusMaster::writeSingleRegister(uint16_t u16WriteAddress, uint16_t u
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16WriteAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , 
-                    "Incorrect register address %d.", u16WriteAddress);
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , TAG,
+                    "Incorrect holding address %d.", u16WriteAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBWriteMultipleRegisters;
     _param_request.reg_start = (u16WriteAddress - u16Regbase);
     _param_request.reg_size = 1;
     uint16_t u16WriteValue_temp = u16WriteValue;
-    return mbc_master_send_request(&_param_request, &u16WriteValue_temp);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, &u16WriteValue_temp);
 }
 
 
@@ -293,14 +330,18 @@ esp_err_t ModbusMaster::writeMultipleCoils(uint16_t u16WriteAddress, uint16_t u1
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16WriteAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , "Incorrect register address %d.", u16WriteAddress);
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_COIL), ESP_ERR_INVALID_ARG , TAG,
+                        "Incorrect coild register address %d.", u16WriteAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBWriteMultipleCoils;
     _param_request.reg_start = (u16WriteAddress - u16Regbase);
     _param_request.reg_size = u16BitQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 /**
@@ -323,15 +364,18 @@ esp_err_t ModbusMaster::writeMultipleRegisters(uint16_t u16WriteAddress, uint16_
     mb_param_type_t regType;
     uint16_t u16Regbase = 0;
 
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ESP_ERR_INVALID_ARG , TAG,
+                            "mb controller initialization fail.");
+
     getRegType(u16WriteAddress, &regType, &u16Regbase);
-    MASTER_CHECK((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , 
-                    "Incorrect register address %d.", u16WriteAddress);
+    MB_RETURN_ON_FALSE((regType == MB_PARAM_HOLDING), ESP_ERR_INVALID_ARG , TAG,
+                    "Incorrect holding register address %d.", u16WriteAddress);
     
     _param_request.slave_addr = _u8MBSlave;
     _param_request.command = ku8MBWriteMultipleRegisters;
     _param_request.reg_start = (u16WriteAddress - u16Regbase);
     _param_request.reg_size = u16WriteQty;
-    return mbc_master_send_request(&_param_request, pvBufPtr);
+    return mbc_master_send_request(_pmaster_handle, &_param_request, pvBufPtr);
 }
 
 /**
@@ -357,20 +401,24 @@ buffer.
 esp_err_t ModbusMaster::readWriteMultipleRegisters(uint16_t u16ReadAddress,
   uint16_t u16ReadQty, uint16_t u16WriteAddress, uint16_t u16WriteQty)
 {
-    ESP_LOGE("ERROR", "Temporary unsupported command %d.", ku8MBReadWriteMultipleRegisters);
+    ESP_LOGE(TAG, "Temporary unsupported command %d.", ku8MBReadWriteMultipleRegisters);
     return ESP_FAIL;
 }
 
 esp_err_t ModbusMaster::readWriteMultipleRegisters(uint16_t u16ReadAddress,
   uint16_t u16ReadQty)
 {
-    ESP_LOGE("ERROR", "Temporarily unsupported command %d.", ku8MBReadWriteMultipleRegisters);
+    ESP_LOGE(TAG, "Temporarily unsupported command %d.", ku8MBReadWriteMultipleRegisters);
     return ESP_FAIL;
 }
 
 ModbusMaster::~ModbusMaster(void)
 {
-    ESP_ERROR_CHECK(mbc_master_destroy());
+    MB_RETURN_ON_FALSE((_pmaster_handle != NULL), ; , TAG,
+                            "mb controller initialization fail.");
+    // The delete will check and stop object if needed
+    ESP_ERROR_CHECK(mbc_master_delete(_pmaster_handle));
+    _pmaster_handle = NULL;
 }
 
 /* _____PRIVATE FUNCTIONS____________________________________________________ */

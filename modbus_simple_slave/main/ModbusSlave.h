@@ -1,6 +1,6 @@
 /**
 @file
-The wrapper class for Modbus Slave for communication over RS232/485 (via RTU protocol).
+The wrapper class for Modbus Slave for communication over RS232/485 (via RTU or ASCII protocol).
 
 @defgroup setup ModbusSlave Object Instantiation/Initialization
 @defgroup buffer ModbusSlave register bank management
@@ -43,45 +43,37 @@ The wrapper class for Modbus Slave for communication over RS232/485 (via RTU pro
 
 #define MODBUS_PAR_INFO_GET_TOUT pdMS_TO_TICKS(10)
 
-#define SLAVE_CHECK(a, ret_val, str, ...) \
-    if (!(a)) { \
-        ESP_LOGE(TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        return ret_val; \
-    }
-
 /* _____STANDARD INCLUDES____________________________________________________ */
 #include <stdint.h>
 #include "esp_log.h"
 
-#include "mbcontroller.h"   // include file for common Modbus types
-
-#define TAG "ModbusSlave"
-
-
 /* _____UTILITY MACROS_______________________________________________________ */
+#define CRITICAL_SECT(inst) for (int st = mbc_slave_lock(inst); (st == 0); mbc_slave_unlock(inst), st = 1)
 
 
 /* _____PROJECT INCLUDES_____________________________________________________ */
-
+#include "mbcontroller.h"   // include file for common Modbus types
 
 /* _____CLASS DEFINITIONS____________________________________________________ */
 
 class ModbusSlave
 {
   public:
-    ModbusSlave(void);
-    ~ModbusSlave(void);
-   
-    esp_err_t begin(mb_communication_info_t*);
+    ModbusSlave(mb_communication_info_t *);
+    virtual ~ModbusSlave();
+    void *getInstance(void);
+
+    esp_err_t begin();
     esp_err_t addRegisterBank(uint16_t regAddress, void* instanceAddress, uint16_t regAreaSize);
     mb_event_group_t run(mb_event_group_t);
     mb_param_info_t getRegisterInfo(void);
     bool isBankAccessed(uint16_t, uint16_t);
+
     
   private:
     uint8_t _u8MBSlave;                                         ///< Modbus slave (1..255) initialized in begin()
     mb_communication_info_t _comm_opts;                         ///< Modbus communication options
-    void* _slave_handler;                                       ///< Modbus slave handler
+    void* _pslave_handle;                                       ///< Modbus slave handle
     mb_param_info_t _reg_info;                                  ///< Modbus slave accessed register information
     mb_event_group_t _reg_event;                                ///< Modbus slave register access event
     
